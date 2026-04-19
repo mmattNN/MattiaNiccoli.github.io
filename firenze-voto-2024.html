@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Florence Votes — Electoral Dashboard</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --bg:       #0d0d0d;
+      --bg2:      #141414;
+      --bg3:      #1c1c1c;
+      --accent:   #c8a96e;
+      --accent2:  #6e9ec8;
+      --text:     #e8e4dc;
+      --muted:    #6b6760;
+      --border:   #252525;
+      --panel-w:  320px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      height: 48px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      flex-shrink: 0;
+      z-index: 200;
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .back-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--accent); }
+    .topbar-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .topbar-right {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .dashboard {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── SIDE PANEL ── */
+    .panel {
+      width: var(--panel-w);
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    .panel::-webkit-scrollbar { width: 3px; }
+    .panel::-webkit-scrollbar-track { background: var(--bg2); }
+    .panel::-webkit-scrollbar-thumb { background: var(--border); }
+
+    .panel-section {
+      padding: 1.2rem 1.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .panel-section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.9rem;
+    }
+
+    /* Controls */
+    .control-group { margin-bottom: 1rem; }
+    .control-group:last-child { margin-bottom: 0; }
+    .control-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    select {
+      width: 100%;
+      background: var(--bg3);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.7rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      appearance: none;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    select:focus { border-color: var(--accent); }
+
+    .toggle-row {
+      display: flex;
+      gap: 0.4rem;
+    }
+    .toggle-btn {
+      flex: 1;
+      padding: 0.45rem 0;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--bg3);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .toggle-btn.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+    .toggle-btn:hover:not(.active) {
+      color: var(--text);
+      border-color: var(--muted);
+    }
+
+    /* Info box */
+    .info-box {
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .info-placeholder {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--border);
+      text-align: center;
+      letter-spacing: 0.1em;
+    }
+    .info-sezione {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      margin-bottom: 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .locked-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+    }
+    .info-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 0.3rem;
+    }
+    .info-sub {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .legend-bar {
+      height: 8px;
+      border-radius: 1px;
+      width: 100%;
+    }
+    .legend-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* Pie chart */
+    .chart-wrap {
+      position: relative;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .chart-empty {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--border);
+      letter-spacing: 0.1em;
+      text-align: center;
+    }
+
+    /* ── MAP ── */
+    .map-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #map {
+      flex: 1;
+    }
+
+    /* ── BAR CHART ── */
+    .bar-section {
+      height: 130px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 0.6rem 1rem 0.5rem;
+      flex-shrink: 0;
+    }
+    .bar-section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .bar-chart-wrap {
+      height: 85px;
+    }
+
+    /* Leaflet dark overrides */
+    .leaflet-container { background: #0d0d0d; }
+    .leaflet-control-zoom a {
+      background: var(--bg2) !important;
+      color: var(--muted) !important;
+      border-color: var(--border) !important;
+    }
+    .leaflet-control-zoom a:hover {
+      background: var(--bg3) !important;
+      color: var(--text) !important;
+    }
+    .leaflet-control-attribution {
+      background: rgba(13,13,13,0.7) !important;
+      color: var(--muted) !important;
+      font-size: 0.6rem !important;
+    }
+    .leaflet-control-attribution a { color: var(--muted) !important; }
+
+    /* Loading overlay */
+    .loading {
+      position: absolute;
+      inset: 0;
+      background: rgba(13,13,13,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+    }
+    .loading.hidden { display: none; }
+
+    /* Data notice */
+    .data-notice {
+      background: rgba(200,169,110,0.08);
+      border: 1px solid rgba(200,169,110,0.2);
+      padding: 0.8rem 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--accent);
+      line-height: 1.6;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <a href="../index.html" class="back-link">← Portfolio</a>
+      <span class="topbar-title">Florence & Sesto Fiorentino — Electoral Atlas</span>
+    </div>
+    <div class="topbar-right">Sezione elettorale level · 2024–2025</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard">
+
+    <!-- SIDE PANEL -->
+    <aside class="panel">
+
+      <!-- CONTROLS -->
+      <div class="panel-section">
+        <div class="panel-section-label">Controls</div>
+
+        <div class="control-group">
+          <label class="control-label">Election</label>
+          <select id="electionSelect">
+            <option value="amm2024">Comunali 2024</option>
+            <option value="reg2025">Regionali 2025</option>
+            <option value="diff">Differences 2025 – 2024</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Party / List</label>
+          <select id="partySelect"></select>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Metric</label>
+          <div class="toggle-row">
+            <button class="toggle-btn active" data-metric="pct">% Share</button>
+            <button class="toggle-btn" data-metric="voti">Abs. Votes</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Mode</label>
+          <div class="toggle-row">
+            <button class="toggle-btn active" data-mode="single">Single</button>
+            <button class="toggle-btn" data-mode="compare">∆ Compare</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- INFO BOX -->
+      <div class="panel-section">
+        <div class="panel-section-label">Selected Sezione</div>
+        <div class="info-box" id="infoBox">
+          <p class="info-placeholder">— hover or click a sezione —</p>
+        </div>
+      </div>
+
+      <!-- LEGEND -->
+      <div class="panel-section">
+        <div class="panel-section-label">Legend</div>
+        <div class="legend">
+          <div class="legend-bar" id="legendBar"></div>
+          <div class="legend-labels">
+            <span id="legendMin"></span>
+            <span id="legendMid"></span>
+            <span id="legendMax"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PIE CHART -->
+      <div class="panel-section" style="flex:1">
+        <div class="panel-section-label">Sezione breakdown — all parties</div>
+        <div class="chart-wrap">
+          <p class="chart-empty" id="pieEmpty">Click a sezione to see breakdown</p>
+          <canvas id="pieChart" style="display:none"></canvas>
+        </div>
+      </div>
+
+      <!-- DATA NOTE -->
+      <div class="panel-section">
+        <div class="data-notice">
+          ⚑ Replace GeoJSON paths in CONFIG at top of script with your actual GitHub raw file URLs.
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- MAP + BAR -->
+    <div class="map-wrap">
+      <div style="position:relative; flex:1; display:flex; flex-direction:column;">
+        <div id="map" style="flex:1;"></div>
+        <div class="loading" id="loading">LOADING DATA…</div>
+      </div>
+
+      <div class="bar-section">
+        <div class="bar-section-label">All sezioni ranked by selected metric (highest → lowest)</div>
+        <div class="bar-chart-wrap">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+// =============================================================================
+// CONFIG — replace URLs with your GitHub raw GeoJSON URLs once uploaded
+// e.g. https://raw.githubusercontent.com/yourusername/yourusername.github.io/main/data/amministrative_2024.geojson
+// =============================================================================
+const DATA_URLS = {
+  amm2024: '../data/amministrative_2024.geojson',
+  reg2025: '../data/regionali_2025.geojson',
+  diff:    '../data/differenze_2025_2024.geojson'
+}
+
+// Party definitions per election
+// id = column name in GeoJSON (without _pct suffix)
+// label = short display name
+// color = party color for charts and sequential map scale
+const PARTIES = {
+  amm2024: [
+    { id: 'PARTITO_DEMOCRATICO_SARA_FUNARO_SINDACA',                              label: 'PD',   color: '#cc2222' },
+    { id: 'FRATELLI_DITALIA_GIORGIA_MELONI',                                      label: 'FdI',  color: '#1a3a8f' },
+    { id: 'PARTITO_POPOLARE_EUROPEO_FORZA_ITALIA_BERLUSCONI_SCHMIDT_SINDACO',     label: 'FI',   color: '#0070bb' },
+    { id: 'LISTA_CIVICA_EIKE_SCHMIDT_SINDACO',                                    label: 'Schmidt (civica)', color: '#4a90a4' },
+    { id: 'LEGA_SCHMIDT_SINDACO',                                                 label: 'Lega', color: '#009fe3' },
+    { id: 'MOVIMENTO_5_STELLE_2050',                                              label: 'M5S',  color: '#c8a900' },
+    { id: 'ALLEANZA_VERDI_SINISTRA',                                              label: 'AVS',  color: '#00875a' },
+    { id: 'SINISTRA_PROGETTO_COMUNE',                                             label: 'Sinistra PC', color: '#8b1a1a' },
+    { id: 'SIAMO_EUROPEI_AZIONE_CON_CALENDA',                                     label: 'Azione', color: '#e07b00' },
+    { id: 'SARA_FUNARO_SINDACA',                                                  label: 'Funaro (civica)', color: '#e8a0a0' },
+    { id: 'FIRENZE_CAMBIA_ZINI_FRANCESCO_SINDACO',                                label: 'Firenze Cambia', color: '#7a9e7e' },
+    { id: 'RIBELLA_FIRENZE',                                                      label: 'Ribella FI', color: '#9b6b9b' },
+    { id: 'AL_CENTRO_CON_SACCARDI',                                               label: 'Al Centro', color: '#b8860b' },
+    { id: 'FIRENZE_AMBIENTALISTA_E_SOLIDALE_CITTADI_PACE',                        label: 'Amb. Solidale', color: '#2e8b57' },
+    { id: 'FIRENZE_VERA',                                                         label: 'Firenze Vera', color: '#cd853f' },
+    { id: 'FIRENZE_DEMOCRATICA_CON_CECILIA_DEL_RE',                               label: 'FI Democratica', color: '#da70d6' },
+    { id: 'FIRENZE_RINASCE',                                                      label: 'FI Rinasce', color: '#708090' },
+    { id: 'MOVIMENTO_5_STELLE_2050',                                              label: 'M5S 2050', color: '#c8a900' },
+    { id: 'ANIMA_FIRENZE',                                                        label: 'Anima FI', color: '#a0522d' },
+    { id: 'piuEUROPA',                                                            label: '+Europa', color: '#4169e1' },
+    { id: 'CENTRO',                                                               label: 'Centro', color: '#808080' },
+  ],
+  reg2025: [
+    { id: 'PARTITO_DEMOCRATICO',                      label: 'PD',        color: '#cc2222' },
+    { id: 'FRATELLI_DITALIA',                         label: 'FdI',       color: '#1a3a8f' },
+    { id: 'FORZA_ITALIA_UDC_TOMASI_PRESIDENTE',       label: 'FI',        color: '#0070bb' },
+    { id: 'LEGA_TOSCANA',                             label: 'Lega',      color: '#009fe3' },
+    { id: 'MOVIMENTO_5_STELLE',                       label: 'M5S',       color: '#c8a900' },
+    { id: 'ALLEANZA_VERDI_E_SINISTRA',                label: 'AVS',       color: '#00875a' },
+    { id: 'TOSCANA_ROSSA',                            label: 'Toscana Rossa', color: '#8b1a1a' },
+    { id: 'EUGENIO_GIANI_PRESIDENTE_CASA_RIFORMISTA', label: 'Casa Riformista', color: '#e07b00' },
+    { id: 'NOI_MODERATI_CIVICI_PER_TOMASI',           label: 'Noi Moderati', color: '#b8860b' },
+    { id: 'E_ORA_LISTA_CIVICA_TOMASI_PRESIDENTE',     label: 'È Ora (civica)', color: '#4a90a4' },
+  ],
+  diff: [
+    { id: 'PD',   label: 'PD ∆',   color: '#cc2222' },
+    { id: 'FdI',  label: 'FdI ∆',  color: '#1a3a8f' },
+    { id: 'FI',   label: 'FI ∆',   color: '#0070bb' },
+    { id: 'Lega', label: 'Lega ∆', color: '#009fe3' },
+    { id: 'M5S',  label: 'M5S ∆',  color: '#c8a900' },
+    { id: 'AVS',  label: 'AVS ∆',  color: '#00875a' },
+  ]
+}
+
+// =============================================================================
+// STATE
+// =============================================================================
+const state = {
+  election:  'amm2024',
+  party:     PARTIES.amm2024[0],
+  metric:    'pct',
+  mode:      'single',
+  locked:    null,   // sezione locked by click
+  data:      {}      // GeoJSON cache keyed by election
+}
+
+// =============================================================================
+// MAP SETUP
+// =============================================================================
+const map = L.map('map', { zoomControl: false }).setView([43.775, 11.255], 13)
+L.control.zoom({ position: 'bottomright' }).addTo(map)
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap · © CartoDB',
+  maxZoom: 19
+}).addTo(map)
+
+let geojsonLayer = null
+
+// =============================================================================
+// COLOR HELPERS
+// =============================================================================
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16)
+  const g = parseInt(hex.slice(3,5),16)
+  const b = parseInt(hex.slice(5,7),16)
+  return [r,g,b]
+}
+
+function lerpColor(c1, c2, t) {
+  const [r1,g1,b1] = typeof c1 === 'string' ? hexToRgb(c1) : c1
+  const [r2,g2,b2] = typeof c2 === 'string' ? hexToRgb(c2) : c2
+  return `rgb(${Math.round(r1+(r2-r1)*t)},${Math.round(g1+(g2-g1)*t)},${Math.round(b1+(b2-b1)*t)})`
+}
+
+function getColor(value, isDiff) {
+  if (value === null || value === undefined || isNaN(value)) return '#1c1c1c'
+  if (isDiff) {
+    const clamp = Math.max(-15, Math.min(15, value))
+    const t = clamp / 15
+    if (t < 0) return lerpColor('#ffffff', '#3a7abf', -t)
+    if (t > 0) return lerpColor('#ffffff', '#bf3a3a', t)
+    return '#ffffff'
+  } else {
+    const max = state.metric === 'pct' ? 60 : 500
+    const t = Math.min(Math.max(value, 0) / max, 1)
+    return lerpColor('#1c1c1c', state.party.color, t)
+  }
+}
+
+// =============================================================================
+// FIELD NAMES
+// =============================================================================
+function getValueField() {
+  const p = state.party.id
+  if (state.election === 'diff') {
+    return state.metric === 'pct' ? `${p}_diff_pct` : `${p}_diff_voti`
+  }
+  return state.metric === 'pct' ? `${p}_pct` : p
+}
+
+function getLabelField() {
+  const p = state.party.id
+  if (state.election === 'diff') {
+    return state.metric === 'pct' ? `${p}_diff_pct_label` : `${p}_diff_voti_label`
+  }
+  return state.metric === 'pct' ? `${p}_label_pct` : `${p}_label_voti`
+}
+
+// =============================================================================
+// LEGEND
+// =============================================================================
+function updateLegend() {
+  const isDiff = state.election === 'diff'
+  const bar = document.getElementById('legendBar')
+
+  if (isDiff) {
+    bar.style.background = 'linear-gradient(to right, #3a7abf, #ffffff, #bf3a3a)'
+    document.getElementById('legendMin').textContent = '< −15 pp'
+    document.getElementById('legendMid').textContent = '0'
+    document.getElementById('legendMax').textContent = '> +15 pp'
+  } else {
+    bar.style.background = `linear-gradient(to right, #1c1c1c, ${state.party.color})`
+    const unit = state.metric === 'pct' ? '%' : 'votes'
+    const max  = state.metric === 'pct' ? '60' : '500'
+    document.getElementById('legendMin').textContent = `0 ${unit}`
+    document.getElementById('legendMid').textContent = ''
+    document.getElementById('legendMax').textContent = `${max}+ ${unit}`
+  }
+}
+
+// =============================================================================
+// INFO BOX
+// =============================================================================
+function updateInfoBox(props, locked) {
+  const val   = props[getLabelField()] ?? props[getValueField()] ?? '—'
+  const unit  = (state.election !== 'diff' && state.metric === 'pct') ? '' : ''
+  const label = state.election === 'diff'
+    ? `∆ ${state.party.label} · 2025 vs 2024`
+    : `${state.party.label} · ${state.election === 'amm2024' ? 'Comunali 2024' : 'Regionali 2025'}`
+
+  document.getElementById('infoBox').innerHTML = `
+    <div class="info-sezione">
+      Sezione ${props.Sezione ?? '—'}
+      ${locked ? '<span class="locked-dot"></span>' : ''}
+    </div>
+    <div class="info-value">${val}</div>
+    <div class="info-sub">${label}</div>
+  `
+}
+
+function clearInfoBox() {
+  document.getElementById('infoBox').innerHTML =
+    '<p class="info-placeholder">— hover or click a sezione —</p>'
+}
+
+// =============================================================================
+// PIE CHART
+// =============================================================================
+let pieChart = null
+
+function updatePieChart(props) {
+  const parties = PARTIES[state.election]
+  const labels  = []
+  const values  = []
+  const colors  = []
+
+  parties.forEach(p => {
+    const col = state.election === 'diff'
+      ? `${p.id}_diff_pct`
+      : `${p.id}_pct`
+    const v = props[col]
+    if (v !== null && v !== undefined && !isNaN(v)) {
+      labels.push(p.label)
+      values.push(Math.abs(v))
+      colors.push(p.color)
+    }
+  })
+
+  document.getElementById('pieEmpty').style.display = 'none'
+  const canvas = document.getElementById('pieChart')
+  canvas.style.display = 'block'
+
+  if (pieChart) pieChart.destroy()
+  pieChart = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: colors,
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '55%',
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            color: '#6b6760',
+            font: { family: 'DM Mono', size: 9 },
+            boxWidth: 8,
+            padding: 6
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.parsed.toFixed(2)}%`
+          }
+        }
+      }
+    }
+  })
+}
+
+// =============================================================================
+// BAR CHART
+// =============================================================================
+let barChart = null
+
+function updateBarChart(geojson) {
+  const field    = getValueField()
+  const isDiff   = state.election === 'diff'
+  const features = geojson.features
+    .filter(f => f.properties[field] !== null && f.properties[field] !== undefined)
+    .sort((a,b) => b.properties[field] - a.properties[field])
+
+  const labels = features.map(f => `${f.properties.Sezione}`)
+  const values = features.map(f => f.properties[field])
+  const bgColors = values.map(v => getColor(v, isDiff))
+
+  if (barChart) barChart.destroy()
+  barChart = new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: bgColors,
+        borderWidth: 0,
+        borderRadius: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 300 },
+      plugins: { legend: { display: false } },
+      scales: {
+        x: {
+          ticks: { display: false },
+          grid: { color: '#1c1c1c' },
+          border: { color: '#252525' }
+        },
+        y: {
+          ticks: {
+            color: '#6b6760',
+            font: { family: 'DM Mono', size: 9 },
+            maxTicksLimit: 4
+          },
+          grid: { color: '#1c1c1c' },
+          border: { color: '#252525' }
+        }
+      }
+    }
+  })
+}
+
+// =============================================================================
+// RENDER MAP
+// =============================================================================
+function renderMap(geojson) {
+  if (geojsonLayer) map.removeLayer(geojsonLayer)
+  const isDiff = state.election === 'diff'
+  const field  = getValueField()
+
+  geojsonLayer = L.geoJSON(geojson, {
+    style: feature => ({
+      fillColor:   getColor(feature.properties[field], isDiff),
+      fillOpacity: 0.82,
+      color:       '#0d0d0d',
+      weight:      0.6
+    }),
+    onEachFeature: (feature, layer) => {
+      const props = feature.properties
+
+      layer.on('mouseover', function() {
+        if (state.locked !== props.Sezione) {
+          this.setStyle({ weight: 2, color: '#c8a96e', fillOpacity: 0.95 })
+          this.bringToFront()
+        }
+        updateInfoBox(props, state.locked === props.Sezione)
+      })
+
+      layer.on('mouseout', function() {
+        if (state.locked !== props.Sezione) {
+          geojsonLayer.resetStyle(this)
+        }
+        if (!state.locked) clearInfoBox()
+      })
+
+      layer.on('click', function() {
+        // Reset all styles first
+        geojsonLayer.eachLayer(l => geojsonLayer.resetStyle(l))
+
+        if (state.locked === props.Sezione) {
+          // Second click = unlock
+          state.locked = null
+          clearInfoBox()
+          document.getElementById('pieEmpty').style.display = 'block'
+          document.getElementById('pieChart').style.display = 'none'
+          if (pieChart) { pieChart.destroy(); pieChart = null }
+        } else {
+          state.locked = props.Sezione
+          this.setStyle({ weight: 2.5, color: '#c8a96e', fillOpacity: 1 })
+          this.bringToFront()
+          updateInfoBox(props, true)
+          updatePieChart(props)
+        }
+      })
+    }
+  }).addTo(map)
+
+  updateLegend()
+  updateBarChart(geojson)
+}
+
+// =============================================================================
+// DATA LOADING
+// =============================================================================
+async function loadData(election) {
+  if (state.data[election]) return state.data[election]
+  try {
+    const res = await fetch(DATA_URLS[election])
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const json = await res.json()
+    state.data[election] = json
+    return json
+  } catch (err) {
+    console.error('Failed to load GeoJSON:', err)
+    alert(`Could not load data for "${election}".\nCheck that the GeoJSON file is at:\n${DATA_URLS[election]}`)
+    return null
+  }
+}
+
+async function update() {
+  document.getElementById('loading').classList.remove('hidden')
+  const geojson = await loadData(state.election)
+  document.getElementById('loading').classList.add('hidden')
+  if (geojson) renderMap(geojson)
+}
+
+// =============================================================================
+// PARTY SELECT
+// =============================================================================
+function populatePartySelect() {
+  const sel = document.getElementById('partySelect')
+  sel.innerHTML = ''
+  PARTIES[state.election].forEach((p, i) => {
+    const opt = document.createElement('option')
+    opt.value = i
+    opt.textContent = p.label
+    sel.appendChild(opt)
+  })
+  state.party = PARTIES[state.election][0]
+}
+
+// =============================================================================
+// EVENT LISTENERS
+// =============================================================================
+document.getElementById('electionSelect').addEventListener('change', e => {
+  state.election = e.target.value
+  state.locked   = null
+  clearInfoBox()
+  populatePartySelect()
+
+  // In compare mode, jump straight to diff layer
+  if (state.mode === 'compare') {
+    state.election = 'diff'
+    document.getElementById('electionSelect').value = 'diff'
+    populatePartySelect()
+  }
+  update()
+})
+
+document.getElementById('partySelect').addEventListener('change', e => {
+  state.party  = PARTIES[state.election][parseInt(e.target.value)]
+  state.locked = null
+  clearInfoBox()
+  if (geojsonLayer && state.data[state.election]) renderMap(state.data[state.election])
+})
+
+document.querySelectorAll('[data-metric]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-metric]').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+    state.metric = btn.dataset.metric
+    state.locked = null
+    clearInfoBox()
+    if (geojsonLayer && state.data[state.election]) renderMap(state.data[state.election])
+  })
+})
+
+document.querySelectorAll('[data-mode]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+    state.mode   = btn.dataset.mode
+    state.locked = null
+    clearInfoBox()
+
+    if (state.mode === 'compare') {
+      // Force diff layer and update election select
+      state.election = 'diff'
+      document.getElementById('electionSelect').value = 'diff'
+      populatePartySelect()
+    }
+    update()
+  })
+})
+
+// =============================================================================
+// INIT
+// =============================================================================
+populatePartySelect()
+update()
+</script>
+</body>
+</html>
