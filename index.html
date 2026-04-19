@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mattia — Data & Territory</title>
+  <title>Mattia Niccoli — Geospatial Analyst</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
@@ -21,34 +21,45 @@
     .nav-links{display:flex;gap:2.5rem;list-style:none;}
     .nav-links a{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;}
     .nav-links a:hover{color:var(--text);}
-    .nav-right{display:flex;align-items:center;gap:1.2rem;}
-    .edit-toggle-btn{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;padding:.3rem .8rem;background:none;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .2s;}
+    .nav-right{display:flex;align-items:center;gap:1rem;}
+    .lang-btn{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:none;border:1px solid var(--border);padding:.3rem .7rem;cursor:pointer;transition:all .2s;}
+    .lang-btn.active,.lang-btn:hover{color:var(--accent);border-color:var(--accent);}
+    /* edit button — hidden by default, shown after password */
+    .edit-toggle-btn{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;padding:.3rem .8rem;background:none;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .2s;display:none;}
+    .edit-toggle-btn.visible{display:inline-block;}
     .edit-toggle-btn:hover,.edit-toggle-btn.active{border-color:var(--accent);color:var(--accent);}
+    /* secret unlock — triple-click nav logo */
+    .nav-logo{cursor:pointer;}
 
     /* HERO */
     .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 4rem 6rem;position:relative;overflow:hidden;}
-    .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(200,169,110,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(200,169,110,.04) 1px,transparent 1px);background-size:60px 60px;}
+    .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat;transition:opacity .5s;}
+    .hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,13,13,.92) 0%,rgba(13,13,13,.5) 50%,rgba(13,13,13,.3) 100%);}
+    .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(200,169,110,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(200,169,110,.03) 1px,transparent 1px);background-size:60px 60px;}
+    .hero-content{position:relative;z-index:1;}
     .hero-tag{font-family:'DM Mono',monospace;font-size:.75rem;color:var(--accent);letter-spacing:.2em;text-transform:uppercase;margin-bottom:1.5rem;opacity:0;animation:fadeUp .8s ease forwards .2s;}
     .hero h1{font-family:'Playfair Display',serif;font-size:clamp(3rem,7vw,6.5rem);font-weight:900;line-height:1.05;max-width:800px;opacity:0;animation:fadeUp .8s ease forwards .4s;}
     .hero h1 em{font-style:italic;color:var(--accent);}
-    .hero-sub{margin-top:2rem;max-width:520px;font-size:1rem;color:var(--muted);opacity:0;animation:fadeUp .8s ease forwards .6s;}
-    .hero-cta{margin-top:3rem;display:flex;gap:1.5rem;align-items:center;opacity:0;animation:fadeUp .8s ease forwards .8s;}
+    .hero-sub{margin-top:2rem;max-width:560px;font-size:1rem;color:rgba(232,228,220,.8);opacity:0;animation:fadeUp .8s ease forwards .6s;line-height:1.7;}
+    .hero-cta{margin-top:3rem;display:flex;gap:1.5rem;align-items:center;opacity:0;animation:fadeUp .8s ease forwards .8s;flex-wrap:wrap;}
     .btn{display:inline-block;padding:.75rem 2rem;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid var(--accent);color:var(--accent);transition:background .2s,color .2s;}
     .btn:hover{background:var(--accent);color:var(--bg);}
-    .btn-ghost{border-color:var(--border);color:var(--muted);}
-    .btn-ghost:hover{background:var(--bg3);color:var(--text);}
+    .btn-ghost{border-color:rgba(232,228,220,.3);color:rgba(232,228,220,.6);}
+    .btn-ghost:hover{background:var(--bg3);color:var(--text);border-color:var(--border);}
+    .btn-link{border:none;color:var(--muted);font-size:.8rem;letter-spacing:.08em;text-decoration:none;font-family:'DM Mono',monospace;padding:0;background:none;}
+    .btn-link:hover{color:var(--accent);}
 
     /* PROJECTS */
     #projects{padding:7rem 4rem;background:var(--bg2);}
     .section-label{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--accent);letter-spacing:.2em;text-transform:uppercase;margin-bottom:3rem;display:flex;align-items:center;gap:1rem;}
     .section-label::after{content:'';flex:1;max-width:60px;height:1px;background:var(--accent);opacity:.4;}
-    .projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.5px;background:var(--border);}
-    .project-card{background:var(--bg2);padding:2.5rem;transition:background .2s;cursor:pointer;text-decoration:none;color:inherit;display:block;}
+    .projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5px;background:var(--border);}
+    .project-card{background:var(--bg2);padding:2.5rem;transition:background .2s;text-decoration:none;color:inherit;display:block;}
     .project-card:hover{background:var(--bg3);}
     .card-year{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:.1em;margin-bottom:1.2rem;}
     .card-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:.65rem;padding:.2rem .6rem;border:1px solid var(--accent2);color:var(--accent2);letter-spacing:.08em;margin-bottom:1rem;}
-    .card-title{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;line-height:1.3;margin-bottom:1rem;}
-    .card-desc{font-size:.9rem;color:var(--muted);line-height:1.6;}
+    .card-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;line-height:1.3;margin-bottom:1rem;}
+    .card-desc{font-size:.88rem;color:var(--muted);line-height:1.6;}
     .card-arrow{margin-top:2rem;font-family:'DM Mono',monospace;font-size:.75rem;color:var(--accent);letter-spacing:.1em;}
 
     /* ABOUT */
@@ -65,52 +76,68 @@
     #contact h2{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,5vw,4.5rem);font-weight:900;margin-bottom:1.5rem;}
     #contact h2 em{color:var(--accent);font-style:italic;}
     #contact p{color:var(--muted);max-width:480px;margin:0 auto 3rem;font-size:.95rem;}
+    .contact-links{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
 
     /* FOOTER */
     footer{padding:2rem 4rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
     footer p{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:.08em;}
-    .footer-lang{display:flex;gap:1rem;}
-    .lang-btn{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:none;border:1px solid var(--border);padding:.3rem .7rem;cursor:pointer;transition:all .2s;}
-    .lang-btn.active,.lang-btn:hover{color:var(--accent);border-color:var(--accent);}
+    .footer-right{display:flex;gap:1rem;align-items:center;}
+
+    /* ── PASSWORD MODAL ── */
+    .pw-modal{position:fixed;inset:0;background:rgba(13,13,13,.96);z-index:600;display:none;align-items:center;justify-content:center;}
+    .pw-modal.show{display:flex;}
+    .pw-box{background:var(--bg2);border:1px solid var(--border);padding:2rem;max-width:300px;width:90%;}
+    .pw-box h3{font-family:'DM Mono',monospace;font-size:.8rem;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:1rem;}
+    .pw-box input{width:100%;background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:.5rem .7rem;font-family:'DM Mono',monospace;font-size:.8rem;outline:none;margin-bottom:.8rem;transition:border-color .2s;}
+    .pw-box input:focus{border-color:var(--accent);}
+    .pw-box button{width:100%;padding:.5rem;background:var(--accent);color:var(--bg);border:none;font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;}
+    .pw-error{font-family:'DM Mono',monospace;font-size:.6rem;color:#cc6666;margin-top:.5rem;display:none;}
+    .pw-cancel{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);text-align:center;margin-top:.8rem;cursor:pointer;letter-spacing:.08em;}
+    .pw-cancel:hover{color:var(--text);}
 
     /* ── EDIT PANEL ── */
     .edit-panel{position:fixed;top:0;right:0;bottom:0;width:420px;background:var(--bg2);border-left:1px solid var(--border);z-index:200;transform:translateX(100%);transition:transform .3s ease;display:flex;flex-direction:column;overflow:hidden;}
     .edit-panel.open{transform:translateX(0);}
-    .edit-panel-header{padding:1.2rem 1.4rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
-    .edit-panel-title{font-family:'DM Mono',monospace;font-size:.75rem;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;}
-    .edit-panel-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;line-height:1;transition:color .2s;}
-    .edit-panel-close:hover{color:var(--text);}
-    .edit-panel-body{flex:1;overflow-y:auto;padding:1.2rem 1.4rem;}
-    .edit-panel-body::-webkit-scrollbar{width:3px;}
-    .edit-panel-body::-webkit-scrollbar-thumb{background:var(--border);}
-    .edit-section{margin-bottom:1.8rem;}
-    .edit-section-title{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.8rem;padding-bottom:.4rem;border-bottom:1px solid var(--border);}
-    .edit-field{margin-bottom:.9rem;}
-    .edit-field label{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:.1em;display:block;margin-bottom:.3rem;}
-    .edit-field input,.edit-field textarea{width:100%;background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:.45rem .6rem;font-family:'DM Sans',sans-serif;font-size:.8rem;outline:none;transition:border-color .2s;resize:vertical;}
-    .edit-field input:focus,.edit-field textarea:focus{border-color:var(--accent);}
-    .edit-field textarea{min-height:60px;line-height:1.5;}
-    .project-form{background:var(--bg3);padding:.8rem;border:1px solid var(--border);border-radius:2px;margin-bottom:.8rem;}
-    .add-btn,.remove-btn{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.08em;padding:.35rem .7rem;margin-top:.6rem;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .2s;}
+    .ep-header{padding:1.2rem 1.4rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+    .ep-title{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;}
+    .ep-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;line-height:1;transition:color .2s;}
+    .ep-close:hover{color:var(--text);}
+    .ep-body{flex:1;overflow-y:auto;padding:1.2rem 1.4rem;}
+    .ep-body::-webkit-scrollbar{width:3px;}
+    .ep-body::-webkit-scrollbar-thumb{background:var(--border);}
+    .ep-section{margin-bottom:1.8rem;}
+    .ep-section-title{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.8rem;padding-bottom:.4rem;border-bottom:1px solid var(--border);}
+    .ep-field{margin-bottom:.85rem;}
+    .ep-field label{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.1em;display:block;margin-bottom:.28rem;}
+    .ep-field input,.ep-field textarea{width:100%;background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:.42rem .6rem;font-family:'DM Sans',sans-serif;font-size:.8rem;outline:none;transition:border-color .2s;resize:vertical;}
+    .ep-field input:focus,.ep-field textarea:focus{border-color:var(--accent);}
+    .ep-field textarea{min-height:60px;line-height:1.5;}
+    .proj-form{background:var(--bg3);padding:.8rem;border:1px solid var(--border);margin-bottom:.8rem;}
+    .add-btn,.remove-btn{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.08em;padding:.32rem .65rem;margin-top:.5rem;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .2s;}
     .add-btn:hover{color:var(--accent);border-color:var(--accent);}
     .remove-btn{color:#9b5555;border-color:#9b5555;}
     .remove-btn:hover{background:#9b5555;color:var(--bg);}
-    .edit-panel-footer{padding:1rem 1.4rem;border-top:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:.6rem;}
-    .save-btn{padding:.55rem;font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;background:var(--accent);color:var(--bg);border:none;cursor:pointer;transition:opacity .2s;}
+    /* image upload */
+    .img-upload-wrap{display:flex;gap:.5rem;align-items:center;}
+    .img-upload-wrap input[type="file"]{display:none;}
+    .img-upload-btn{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.08em;padding:.38rem .7rem;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap;}
+    .img-upload-btn:hover{color:var(--accent);border-color:var(--accent);}
+    .img-preview{width:48px;height:32px;object-fit:cover;border:1px solid var(--border);display:none;}
+    .img-clear-btn{font-family:'DM Mono',monospace;font-size:.6rem;color:#9b5555;background:none;border:none;cursor:pointer;display:none;}
+    .ep-footer{padding:1rem 1.4rem;border-top:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:.5rem;}
+    .save-btn{padding:.52rem;font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;background:var(--accent);color:var(--bg);border:none;cursor:pointer;transition:opacity .2s;}
     .save-btn:hover{opacity:.85;}
-    .export-btn{padding:.55rem;font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;background:none;color:var(--muted);border:1px solid var(--border);cursor:pointer;transition:all .2s;}
-    .export-btn:hover{color:var(--text);border-color:var(--muted);}
-    .import-wrap{display:flex;gap:.4rem;}
-    .import-wrap input[type="file"]{display:none;}
-    .import-btn{flex:1;padding:.55rem;font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;background:none;color:var(--muted);border:1px solid var(--border);cursor:pointer;transition:all .2s;}
+    .import-row{display:flex;gap:.4rem;}
+    .import-btn{flex:1;padding:.52rem;font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;background:none;color:var(--muted);border:1px solid var(--border);cursor:pointer;transition:all .2s;}
     .import-btn:hover{color:var(--text);border-color:var(--muted);}
-    .save-notice{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:.06em;margin-top:.5rem;text-align:center;display:none;}
+    .save-notice{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;display:none;line-height:1.5;}
 
     @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
     @media(max-width:768px){
       nav{padding:1.2rem 1.5rem;}
       .nav-links{display:none;}
-      .hero,.#projects,#about,#contact,footer{padding-left:1.5rem;padding-right:1.5rem;}
+      .hero{padding:0 1.5rem 4rem;}
+      #projects,#about,#contact,footer{padding-left:1.5rem;padding-right:1.5rem;}
       #about{grid-template-columns:1fr;gap:3rem;}
       .about-title{position:static;}
       footer{flex-direction:column;gap:1rem;text-align:center;}
@@ -120,32 +147,46 @@
 </head>
 <body>
 
+<!-- PASSWORD MODAL (hidden by default) -->
+<div class="pw-modal" id="pwModal">
+  <div class="pw-box">
+    <h3>🔒 Editor Access</h3>
+    <input type="password" id="pwInput" placeholder="Enter password"/>
+    <button id="pwSubmit">Unlock Editor</button>
+    <div class="pw-error" id="pwError">Incorrect password</div>
+    <div class="pw-cancel" id="pwCancel">Cancel</div>
+  </div>
+</div>
+
 <!-- NAV -->
 <nav>
-  <a class="nav-logo" href="#">M.NICCOLI — DATA & TERRITORY</a>
+  <a class="nav-logo" href="#" id="navLogo" title="Triple-click to unlock editor">M.NICCOLI</a>
   <ul class="nav-links">
     <li><a href="#projects">Projects</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
   <div class="nav-right">
-    <ul class="nav-links" style="margin:0">
-      <li><button class="lang-btn active" onclick="setLang('en')">EN</button></li>
-      <li><button class="lang-btn" onclick="setLang('it')">IT</button></li>
-    </ul>
+    <button class="lang-btn active" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('it')">IT</button>
     <button class="edit-toggle-btn" id="editToggleBtn">✎ Edit</button>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
   <div class="hero-grid"></div>
-  <p class="hero-tag" id="heroTag"></p>
-  <h1 id="heroTitle"></h1>
-  <p class="hero-sub" id="heroSub"></p>
-  <div class="hero-cta">
-    <a href="#projects" class="btn">View Projects</a>
-    <a href="#about" class="btn btn-ghost">About Me</a>
+  <div class="hero-content">
+    <p class="hero-tag" id="heroTag"></p>
+    <h1 id="heroTitle"></h1>
+    <p class="hero-sub" id="heroSub"></p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn">View Projects</a>
+      <a href="#about" class="btn btn-ghost">About Me</a>
+      <a href="#" class="btn-link" id="navLinkedin" target="_blank">LinkedIn →</a>
+    </div>
   </div>
 </section>
 
@@ -172,13 +213,16 @@
   <div class="section-label" style="justify-content:center">Get in touch</div>
   <h2>Let's <em>talk.</em></h2>
   <p id="contactDesc"></p>
-  <a href="#" class="btn" id="contactEmail"></a>
+  <div class="contact-links">
+    <a href="#" class="btn" id="contactEmail"></a>
+    <a href="#" class="btn btn-ghost" id="contactLinkedin" target="_blank">LinkedIn</a>
+  </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
   <p id="footerText"></p>
-  <div class="footer-lang">
+  <div class="footer-right">
     <button class="lang-btn active" onclick="setLang('en')">EN</button>
     <button class="lang-btn" onclick="setLang('it')">IT</button>
   </div>
@@ -186,259 +230,358 @@
 
 <!-- EDIT PANEL -->
 <div class="edit-panel" id="editPanel">
-  <div class="edit-panel-header">
-    <span class="edit-panel-title">✎ Manage Content (JSON)</span>
-    <button class="edit-panel-close" id="editClose">✕</button>
+  <div class="ep-header">
+    <span class="ep-title">✎ Content Manager</span>
+    <button class="ep-close" id="editClose">✕</button>
   </div>
-  <div class="edit-panel-body">
+  <div class="ep-body">
 
-    <div class="edit-section">
-      <div class="edit-section-title">Identity & Contact</div>
-      <div class="edit-field"><label>Your name</label><input type="text" id="nameInput"/></div>
-      <div class="edit-field"><label>City</label><input type="text" id="cityInput"/></div>
-      <div class="edit-field"><label>Email</label><input type="email" id="emailInput"/></div>
+    <div class="ep-section">
+      <div class="ep-section-title">Identity & Contact</div>
+      <div class="ep-field"><label>Full name</label><input type="text" id="f_name"/></div>
+      <div class="ep-field"><label>City</label><input type="text" id="f_city"/></div>
+      <div class="ep-field"><label>Email</label><input type="email" id="f_email"/></div>
+      <div class="ep-field"><label>LinkedIn URL</label><input type="text" id="f_linkedin"/></div>
     </div>
 
-    <div class="edit-section">
-      <div class="edit-section-title">Hero Section</div>
-      <div class="edit-field"><label>Tag</label><input type="text" id="heroTagInput"/></div>
-      <div class="edit-field"><label>Title (use &lt;em&gt; for italic)</label><input type="text" id="heroTitleInput"/></div>
-      <div class="edit-field"><label>Subtitle</label><textarea id="heroSubInput"></textarea></div>
+    <div class="ep-section">
+      <div class="ep-section-title">Hero Background Image</div>
+      <div class="ep-field">
+        <label>Upload image (or paste URL below)</label>
+        <div class="img-upload-wrap">
+          <button class="img-upload-btn" id="bgUploadBtn">📁 Choose image</button>
+          <input type="file" id="bgFileInput" accept="image/*"/>
+          <img id="bgPreview" class="img-preview"/>
+          <button class="img-clear-btn" id="bgClearBtn">✕ Remove</button>
+        </div>
+      </div>
+      <div class="ep-field"><label>Or image URL / filename</label><input type="text" id="f_heroBackground" placeholder="pictureNasa.jpg or https://..."/></div>
     </div>
 
-    <div class="edit-section">
-      <div class="edit-section-title">About Section</div>
-      <div class="edit-field"><label>Title (use &lt;em&gt; for italic)</label><input type="text" id="aboutTitleInput"/></div>
-      <div class="edit-field"><label>Paragraphs (each on new line, use &lt;strong&gt; for bold)</label><textarea id="aboutTextsInput" style="min-height:120px"></textarea></div>
-      <div class="edit-field"><label>Skills (comma-separated)</label><textarea id="skillsInput" style="min-height:60px"></textarea></div>
+    <div class="ep-section">
+      <div class="ep-section-title">Hero Section</div>
+      <div class="ep-field"><label>Tag line</label><input type="text" id="f_heroTag"/></div>
+      <div class="ep-field"><label>Title (use &lt;em&gt; for italic)</label><input type="text" id="f_heroTitle"/></div>
+      <div class="ep-field"><label>Subtitle</label><textarea id="f_heroSub"></textarea></div>
     </div>
 
-    <div class="edit-section">
-      <div class="edit-section-title">Contact Section</div>
-      <div class="edit-field"><label>Description</label><textarea id="contactDescInput"></textarea></div>
+    <div class="ep-section">
+      <div class="ep-section-title">About Section</div>
+      <div class="ep-field"><label>Title (use &lt;em&gt; for italic)</label><input type="text" id="f_aboutTitle"/></div>
+      <div class="ep-field"><label>Paragraphs — separate with blank line. Use &lt;strong&gt; for bold.</label><textarea id="f_aboutTexts" style="min-height:140px"></textarea></div>
+      <div class="ep-field"><label>Skills (comma-separated)</label><textarea id="f_skills" style="min-height:70px"></textarea></div>
     </div>
 
-    <div class="edit-section">
-      <div class="edit-section-title">Projects</div>
-      <p style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:1rem;">Add/edit/remove projects below. Click "Add Project" to add a new one.</p>
+    <div class="ep-section">
+      <div class="ep-section-title">Contact Section</div>
+      <div class="ep-field"><label>Description</label><textarea id="f_contactDesc"></textarea></div>
+    </div>
+
+    <div class="ep-section">
+      <div class="ep-section-title">Projects</div>
+      <p style="font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);margin-bottom:1rem;line-height:1.5;">Each project becomes a card. Add as many as you want. Leave link as # if not ready.</p>
       <div id="projectsContainer"></div>
       <button class="add-btn" id="addProjectBtn">+ Add Project</button>
     </div>
 
-    <div class="edit-section">
-      <div class="edit-section-title">Footer</div>
-      <div class="edit-field"><label>Footer text</label><input type="text" id="footerInput"/></div>
+    <div class="ep-section">
+      <div class="ep-section-title">Footer</div>
+      <div class="ep-field"><label>Footer text</label><input type="text" id="f_footerText"/></div>
     </div>
 
   </div>
-  <div class="edit-panel-footer">
+  <div class="ep-footer">
     <button class="save-btn" id="saveBtn">💾 Save & Download JSON</button>
-    <div class="import-wrap">
-      <button class="import-btn" id="importBtn">📂 Load JSON file</button>
-      <input type="file" id="fileInput" accept=".json"/>
+    <div class="import-row">
+      <button class="import-btn" id="importBtn">📂 Load existing JSON</button>
+      <input type="file" id="fileInput" accept=".json" style="display:none"/>
     </div>
-    <p class="save-notice" id="saveNotice">✓ JSON downloaded. Upload to GitHub in a <code>content.json</code> file.</p>
+    <div class="save-notice" id="saveNotice">
+      ✓ content.json downloaded.<br>Upload it to your GitHub repo root to publish changes.
+    </div>
   </div>
 </div>
 
 <script>
-// ── DEFAULT CONTENT ────────────────────────────────────────────────────────────
-const DEFAULT_CONTENT = {
-  name: 'Mattia Niccoli',
-  city: 'Florence',
-  email: 'your@email.com',
-  heroTag: 'Spatial Analysis · Electoral Data · GIS',
-  heroTitle: 'Maps that tell<br><em>political stories.</em>',
-  heroSub: 'I work at the intersection of geography, data, and politics — turning electoral results into spatial narratives at the finest granularity: the single sezione elettorale.',
-  aboutTitle: 'Data, maps,<br>and <em>politics.</em>',
-  aboutTexts: [
-    'I\'m <strong>Mattia Niccoli</strong>, a researcher and analyst based in <strong>Florence</strong>. I work with electoral and spatial data, combining GIS tools with statistical analysis to understand how political behaviour varies across urban and suburban territories.',
-    'My current focus is on <strong>Florence and Sesto Fiorentino</strong>, where I am building a granular database of voting results at the sezione elettorale level across multiple elections — from the 2024 Comunali to the 2025 Regionali.',
-    'I work primarily in <strong>R</strong> for data processing and spatial joins, <strong>QGIS and ArcGIS Pro</strong> for cartography, and open-web tools for interactive publishing.'
+// ── PASSWORD ──────────────────────────────────────────────────────────────────
+const EDITOR_PASSWORD = 'mattia2025' // ← change this to your password
+
+const pwModal   = document.getElementById('pwModal')
+const pwInput   = document.getElementById('pwInput')
+const pwError   = document.getElementById('pwError')
+const editToggleBtn = document.getElementById('editToggleBtn')
+
+// Show password modal when edit button is clicked (before edit button is visible,
+// clicking the nav logo 3 times triggers the modal)
+let logoClicks = 0, logoTimer = null
+document.getElementById('navLogo').addEventListener('click', e => {
+  e.preventDefault()
+  logoClicks++
+  clearTimeout(logoTimer)
+  logoTimer = setTimeout(() => logoClicks = 0, 800)
+  if (logoClicks >= 3) { logoClicks = 0; showPwModal() }
+})
+
+function showPwModal() {
+  pwModal.classList.add('show')
+  pwInput.focus()
+}
+
+document.getElementById('pwSubmit').addEventListener('click', checkPw)
+pwInput.addEventListener('keydown', e => { if(e.key==='Enter') checkPw() })
+document.getElementById('pwCancel').addEventListener('click', () => pwModal.classList.remove('show'))
+
+function checkPw() {
+  if (pwInput.value === EDITOR_PASSWORD) {
+    pwModal.classList.remove('show')
+    editToggleBtn.classList.add('visible')
+    pwInput.value = ''
+    pwError.style.display = 'none'
+  } else {
+    pwError.style.display = 'block'
+    setTimeout(() => pwError.style.display='none', 2000)
+  }
+}
+
+// ── DEFAULT CONTENT ───────────────────────────────────────────────────────────
+const DEFAULTS = {
+  name:'Mattia Niccoli', city:'Sesto Fiorentino, Florence',
+  email:'niccoli.mattia@gmail.com',
+  linkedin:'https://www.linkedin.com/in/mattia-niccoli-2a18b31b4/',
+  heroTag:'Geospatial Analysis · Earth Observation · Cartography',
+  heroTitle:'Turning spatial data<br>into <em>geographic insight.</em>',
+  heroSub:'M.Sc. in Geography. Research Fellow at the Laboratory of Forest Geomatics, University of Florence. I work at the intersection of GIS, remote sensing, and data analysis — transforming heterogeneous geospatial data into knowledge for environmental management, urban planning, and beyond.',
+  heroBackground:'pictureNasa.jpg',
+  aboutTitle:'Geography,<br>data, and <em>method.</em>',
+  aboutTexts:[
+    'I\'m <strong>Mattia Niccoli</strong>, a geographer and spatial analyst based in <strong>Sesto Fiorentino, Florence</strong>. My work sits at the intersection of Earth Observation, GIS, and quantitative geography — I apply these methods to extract strategic insights from spatial data across environmental management, urban climate, forest monitoring, and electoral geography.',
+    'I am currently a <strong>Research Fellow at GeoLAB</strong>, the Laboratory of Forest Geomatics at the University of Florence, where I work with satellite imagery, CLMS products, LiDAR, and field data across the full project cycle: data management, spatial and statistical analysis, cartographic production, and contributions to scientific publications.',
+    'I hold a <strong>Master\'s degree in Geography, Spatial Management and Heritage for International Cooperation</strong> (110/110 cum Laude) from the University of Florence, and a Bachelor\'s in Economics (110/110 cum Laude). I work in <strong>R and Python</strong> for spatial analysis and with <strong>ArcGIS Pro, QGIS, and Google Earth Engine</strong> for remote sensing and cartography.'
   ],
-  skills: ['R / sf / tidyr', 'QGIS', 'ArcGIS Pro', 'Spatial Analysis', 'Electoral Data', 'Leaflet.js', 'GeoPackage', 'Geocoding'],
-  contactDesc: 'Interested in collaboration, data, or just want to discuss electoral geography? I\'m always happy to connect.',
-  footerText: '© 2025 Mattia Niccoli — Built with GitHub Pages',
-  projects: [
-    { year: '2024 — 2025', tag: 'Electoral Maps', title: 'Voting Patterns in Florence & Sesto Fiorentino', desc: 'Interactive maps at sezione elettorale level showing results, percentage shifts, and turnout across Comunali 2024 and Regionali 2025.', link: 'projects/firenze-voto-2024.html' },
-    { year: 'Coming soon', tag: 'Geocoding', title: 'Reconstructing Electoral Boundaries from Addresses', desc: 'Automating the geocoding of 6,000+ addresses to reconstruct the sezioni boundaries for Sesto Fiorentino from scratch.', link: '#' },
-    { year: 'Coming soon', tag: 'Analysis', title: 'Left-Right Shifts Across Tuscany', desc: 'A regional overview of political realignment between 2020 and 2025, with a focus on swing sezioni and turnout collapse.', link: '#' }
+  skills:['ArcGIS Pro / Online','QGIS','Google Earth Engine','R / sf / tidyr','Python','Remote Sensing','LiDAR','Photogrammetry','Spatial Statistics','WebGIS & Dashboards','Leaflet.js','Cartography & Map Design','Electoral Data','CLMS Products'],
+  contactDesc:'Interested in collaboration, geospatial projects, or just want to discuss geography and data? I\'m always happy to connect.',
+  footerText:'© 2025 Mattia Niccoli — Built with GitHub Pages',
+  projects:[
+    {year:'2024 — 2025',tag:'Electoral Maps',title:'Voting Patterns in Florence & Sesto Fiorentino',desc:'Interactive maps at sezione elettorale level showing vote shares, percentage shifts, and turnout across Comunali 2024 and Regionali 2025. Built with R, Leaflet.js, and GeoJSON on GitHub Pages.',link:'projects/firenze-voto-2024.html'},
+    {year:'2022 — 2024',tag:"Master's Thesis",title:'Mapping Local Climate Zones in the Metropolitan Area of Florence',desc:'Integrated multitemporal Sentinel-2 imagery with ancillary geospatial layers to produce a Local Climate Zone map of Florence using a Random Forest classifier. Published in Bollettino della Società Geografica Italiana.',link:'#'},
+    {year:'2025 — present',tag:'Forest Geomatics',title:'Earth Observation for Forest and Urban Monitoring',desc:'Research at GeoLAB involving satellite imagery, LiDAR, and CLMS products for forest mapping, urban climate analysis, and biodiversity monitoring. Several articles under review in international journals.',link:'#'},
+    {year:'Coming soon',tag:'Geocoding',title:'Reconstructing Electoral Boundaries from Addresses',desc:'Automating the geocoding of 6,000+ addresses to reconstruct sezioni elettorali boundaries for Sesto Fiorentino from scratch using tidygeocoder in R.',link:'#'}
   ]
 }
 
-let content = { ...DEFAULT_CONTENT }
+let content = JSON.parse(JSON.stringify(DEFAULTS))
+let bgDataUrl = null // stores uploaded image as base64
 
-// ── LOAD CONTENT ───────────────────────────────────────────────────────────────
+// ── LOAD FROM content.json ────────────────────────────────────────────────────
 async function loadContent(){
   try{
     const res = await fetch('content.json')
     if(res.ok) content = await res.json()
-  }catch(e){ console.log('No content.json, using defaults') }
+  }catch(e){ console.log('Using default content') }
   renderPage()
 }
 
-// ── RENDER PAGE ────────────────────────────────────────────────────────────────
+// ── RENDER PAGE ───────────────────────────────────────────────────────────────
 function renderPage(){
+  document.title = `${content.name} — Geospatial Analyst`
+  document.getElementById('navLogo').textContent = content.name.split(' ').map(w=>w[0]).join('') + '.' + content.name.split(' ')[1].toUpperCase()
+
   document.getElementById('heroTag').textContent = content.heroTag
   document.getElementById('heroTitle').innerHTML = content.heroTitle
   document.getElementById('heroSub').textContent = content.heroSub
+
+  // Background image
+  const bg = bgDataUrl || content.heroBackground
+  const heroBg = document.getElementById('heroBg')
+  if(bg){
+    heroBg.style.backgroundImage = `url('${bg}')`
+    heroBg.style.opacity = '1'
+  } else {
+    heroBg.style.opacity = '0'
+  }
+
+  document.getElementById('navLinkedin').href = content.linkedin || '#'
   document.getElementById('aboutTitle').innerHTML = content.aboutTitle
-  
-  const aboutHtml = content.aboutTexts.map(p=>`<p>${p}</p>`).join('')
-  document.getElementById('aboutContent').innerHTML = aboutHtml
-  
-  const skillsHtml = content.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('')
-  document.getElementById('skillsList').innerHTML = skillsHtml
-  
+  document.getElementById('aboutContent').innerHTML = content.aboutTexts.map(p=>`<p>${p}</p>`).join('')
+  document.getElementById('skillsList').innerHTML = content.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('')
   document.getElementById('contactDesc').textContent = content.contactDesc
   document.getElementById('contactEmail').textContent = content.email
   document.getElementById('contactEmail').href = 'mailto:' + content.email
-  
+  document.getElementById('contactLinkedin').href = content.linkedin || '#'
   document.getElementById('footerText').textContent = content.footerText
-  
-  const projectsHtml = content.projects.map(p=>`
+
+  document.getElementById('projectsGrid').innerHTML = content.projects.map(p=>`
     <a class="project-card" href="${p.link}">
       <div class="card-year">${p.year}</div>
       <span class="card-tag">${p.tag}</span>
       <h3 class="card-title">${p.title}</h3>
       <p class="card-desc">${p.desc}</p>
-      <div class="card-arrow">View →</div>
+      <div class="card-arrow">${p.link==='#'?'Coming soon →':'View project →'}</div>
     </a>
   `).join('')
-  document.getElementById('projectsGrid').innerHTML = projectsHtml
 }
 
 // ── FILL EDIT FORM ────────────────────────────────────────────────────────────
 function fillEditForm(){
-  document.getElementById('nameInput').value = content.name
-  document.getElementById('cityInput').value = content.city
-  document.getElementById('emailInput').value = content.email
-  document.getElementById('heroTagInput').value = content.heroTag
-  document.getElementById('heroTitleInput').value = content.heroTitle
-  document.getElementById('heroSubInput').value = content.heroSub
-  document.getElementById('aboutTitleInput').value = content.aboutTitle
-  document.getElementById('aboutTextsInput').value = content.aboutTexts.join('\n\n')
-  document.getElementById('skillsInput').value = content.skills.join(', ')
-  document.getElementById('contactDescInput').value = content.contactDesc
-  document.getElementById('footerInput').value = content.footerText
-  
+  document.getElementById('f_name').value = content.name
+  document.getElementById('f_city').value = content.city
+  document.getElementById('f_email').value = content.email
+  document.getElementById('f_linkedin').value = content.linkedin || ''
+  document.getElementById('f_heroTag').value = content.heroTag
+  document.getElementById('f_heroTitle').value = content.heroTitle
+  document.getElementById('f_heroSub').value = content.heroSub
+  document.getElementById('f_heroBackground').value = content.heroBackground || ''
+  document.getElementById('f_aboutTitle').value = content.aboutTitle
+  document.getElementById('f_aboutTexts').value = content.aboutTexts.join('\n\n')
+  document.getElementById('f_skills').value = content.skills.join(', ')
+  document.getElementById('f_contactDesc').value = content.contactDesc
+  document.getElementById('f_footerText').value = content.footerText
+
+  if(bgDataUrl || content.heroBackground){
+    const preview = document.getElementById('bgPreview')
+    preview.src = bgDataUrl || content.heroBackground
+    preview.style.display = 'block'
+    document.getElementById('bgClearBtn').style.display = 'inline'
+  }
+
   renderProjectForms()
 }
 
-// ── PROJECT FORMS ────────────────────────────────────────────────────────────
+// ── PROJECT FORMS ─────────────────────────────────────────────────────────────
 function renderProjectForms(){
   const container = document.getElementById('projectsContainer')
-  container.innerHTML = content.projects.map((p,i)`
-    <div class="project-form">
-      <div class="edit-field"><label>Year</label><input type="text" class="proj-year" value="${p.year}" data-idx="${i}"/></div>
-      <div class="edit-field"><label>Tag</label><input type="text" class="proj-tag" value="${p.tag}" data-idx="${i}"/></div>
-      <div class="edit-field"><label>Title</label><input type="text" class="proj-title" value="${p.title}" data-idx="${i}"/></div>
-      <div class="edit-field"><label>Description</label><textarea class="proj-desc" data-idx="${i}">${p.desc}</textarea></div>
-      <div class="edit-field"><label>Link (or #)</label><input type="text" class="proj-link" value="${p.link}" data-idx="${i}"/></div>
-      <button class="remove-btn" data-idx="${i}">— Remove project</button>
+  container.innerHTML = content.projects.map((p,i)=>`
+    <div class="proj-form" data-idx="${i}">
+      <div class="ep-field"><label>Year / period</label><input type="text" class="pf-year" value="${p.year}"/></div>
+      <div class="ep-field"><label>Tag</label><input type="text" class="pf-tag" value="${p.tag}"/></div>
+      <div class="ep-field"><label>Title</label><input type="text" class="pf-title" value="${p.title}"/></div>
+      <div class="ep-field"><label>Description</label><textarea class="pf-desc">${p.desc}</textarea></div>
+      <div class="ep-field"><label>Link (or #)</label><input type="text" class="pf-link" value="${p.link}"/></div>
+      <button class="remove-btn">— Remove</button>
     </div>
   `).join('')
-  
-  document.querySelectorAll('.remove-btn').forEach(btn=>{
-    btn.addEventListener('click',e=>{
-      const idx = +e.target.dataset.idx
-      content.projects.splice(idx,1)
-      renderProjectForms()
-    })
+
+  container.querySelectorAll('.remove-btn').forEach((btn,i)=>{
+    btn.addEventListener('click',()=>{ content.projects.splice(i,1); renderProjectForms() })
   })
 }
 
-// ── SAVE TO JSON ───────────────────────────────────────────────────────────────
-function saveToJSON(){
-  // Read from form inputs
-  content.name = document.getElementById('nameInput').value
-  content.city = document.getElementById('cityInput').value
-  content.email = document.getElementById('emailInput').value
-  content.heroTag = document.getElementById('heroTagInput').value
-  content.heroTitle = document.getElementById('heroTitleInput').value
-  content.heroSub = document.getElementById('heroSubInput').value
-  content.aboutTitle = document.getElementById('aboutTitleInput').value
-  content.aboutTexts = document.getElementById('aboutTextsInput').value.split('\n\n').filter(t=>t.trim())
-  content.skills = document.getElementById('skillsInput').value.split(',').map(s=>s.trim()).filter(s=>s)
-  content.contactDesc = document.getElementById('contactDescInput').value
-  content.footerText = document.getElementById('footerInput').value
-  
-  // Read project inputs
+// ── BACKGROUND IMAGE UPLOAD ───────────────────────────────────────────────────
+document.getElementById('bgUploadBtn').addEventListener('click',()=>{
+  document.getElementById('bgFileInput').click()
+})
+document.getElementById('bgFileInput').addEventListener('change',e=>{
+  const file = e.target.files[0]
+  if(!file) return
+  const reader = new FileReader()
+  reader.onload = evt => {
+    bgDataUrl = evt.target.result
+    document.getElementById('bgPreview').src = bgDataUrl
+    document.getElementById('bgPreview').style.display = 'block'
+    document.getElementById('bgClearBtn').style.display = 'inline'
+    document.getElementById('f_heroBackground').value = file.name
+    renderPage()
+  }
+  reader.readAsDataURL(file)
+})
+document.getElementById('bgClearBtn').addEventListener('click',()=>{
+  bgDataUrl = null
+  content.heroBackground = ''
+  document.getElementById('f_heroBackground').value = ''
+  document.getElementById('bgPreview').style.display = 'none'
+  document.getElementById('bgClearBtn').style.display = 'none'
+  renderPage()
+})
+document.getElementById('f_heroBackground').addEventListener('input',e=>{
+  if(!bgDataUrl){
+    content.heroBackground = e.target.value
+    renderPage()
+  }
+})
+
+// ── SAVE ──────────────────────────────────────────────────────────────────────
+function collectContent(){
+  content.name = document.getElementById('f_name').value
+  content.city = document.getElementById('f_city').value
+  content.email = document.getElementById('f_email').value
+  content.linkedin = document.getElementById('f_linkedin').value
+  content.heroTag = document.getElementById('f_heroTag').value
+  content.heroTitle = document.getElementById('f_heroTitle').value
+  content.heroSub = document.getElementById('f_heroSub').value
+  content.heroBackground = document.getElementById('f_heroBackground').value
+  content.aboutTitle = document.getElementById('f_aboutTitle').value
+  content.aboutTexts = document.getElementById('f_aboutTexts').value.split('\n\n').filter(t=>t.trim())
+  content.skills = document.getElementById('f_skills').value.split(',').map(s=>s.trim()).filter(s=>s)
+  content.contactDesc = document.getElementById('f_contactDesc').value
+  content.footerText = document.getElementById('f_footerText').value
+
   content.projects = []
-  document.querySelectorAll('.project-form').forEach(form=>{
-    const year = form.querySelector('.proj-year').value
-    const tag = form.querySelector('.proj-tag').value
-    const title = form.querySelector('.proj-title').value
-    const desc = form.querySelector('.proj-desc').value
-    const link = form.querySelector('.proj-link').value
-    if(year && title) content.projects.push({year,tag,title,desc,link})
+  document.querySelectorAll('.proj-form').forEach(form=>{
+    const year = form.querySelector('.pf-year').value
+    const tag  = form.querySelector('.pf-tag').value
+    const title= form.querySelector('.pf-title').value
+    const desc = form.querySelector('.pf-desc').value
+    const link = form.querySelector('.pf-link').value
+    if(title) content.projects.push({year,tag,title,desc,link})
   })
-  
-  // Download JSON
-  const json = JSON.stringify(content, null, 2)
-  const blob = new Blob([json], {type:'application/json'})
+}
+
+document.getElementById('saveBtn').addEventListener('click',()=>{
+  collectContent()
+  renderPage()
+  const blob = new Blob([JSON.stringify(content,null,2)],{type:'application/json'})
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
   a.download = 'content.json'
   a.click()
-  
   const notice = document.getElementById('saveNotice')
   notice.style.display = 'block'
-  setTimeout(()=>notice.style.display='none', 4000)
-}
-
-// ── IMPORT JSON ────────────────────────────────────────────────────────────────
-document.getElementById('importBtn').addEventListener('click',()=>{
-  document.getElementById('fileInput').click()
+  setTimeout(()=>notice.style.display='none',5000)
 })
+
+// ── IMPORT ────────────────────────────────────────────────────────────────────
+document.getElementById('importBtn').addEventListener('click',()=>document.getElementById('fileInput').click())
 document.getElementById('fileInput').addEventListener('change',e=>{
-  const file = e.target.files[0]
-  if(!file) return
+  const file = e.target.files[0]; if(!file) return
   const reader = new FileReader()
   reader.onload = evt=>{
     try{
       content = JSON.parse(evt.target.result)
-      fillEditForm()
-      renderPage()
-      alert('✓ JSON loaded successfully')
-    }catch(err){
-      alert('Error loading JSON: '+err.message)
-    }
+      fillEditForm(); renderPage()
+      alert('✓ JSON loaded')
+    }catch(err){ alert('Error: '+err.message) }
   }
   reader.readAsText(file)
 })
 
-// ── ADD PROJECT ────────────────────────────────────────────────────────────────
+// ── ADD PROJECT ───────────────────────────────────────────────────────────────
 document.getElementById('addProjectBtn').addEventListener('click',()=>{
   content.projects.push({year:'',tag:'',title:'',desc:'',link:'#'})
   renderProjectForms()
 })
 
-// ── EDIT PANEL TOGGLE ────────────────────────────────────────────────────────
+// ── EDIT PANEL ────────────────────────────────────────────────────────────────
 const editPanel = document.getElementById('editPanel')
-const editToggle = document.getElementById('editToggleBtn')
 const editClose = document.getElementById('editClose')
 
-editToggle.addEventListener('click',()=>{
+editToggleBtn.addEventListener('click',()=>{
   const open = editPanel.classList.toggle('open')
-  editToggle.classList.toggle('active',open)
+  editToggleBtn.classList.toggle('active',open)
   if(open) fillEditForm()
 })
 editClose.addEventListener('click',()=>{
   editPanel.classList.remove('open')
-  editToggle.classList.remove('active')
+  editToggleBtn.classList.remove('active')
 })
 
-document.getElementById('saveBtn').addEventListener('click',saveToJSON)
-
-// ── LANGUAGE ───────────────────────────────────────────────────────────────────
+// ── LANGUAGE ──────────────────────────────────────────────────────────────────
 function setLang(lang){
   document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'))
-  document.querySelectorAll(`.lang-btn`).forEach(b=>{ if(b.textContent===lang.toUpperCase()) b.classList.add('active') })
+  document.querySelectorAll('.lang-btn').forEach(b=>{if(b.textContent===lang.toUpperCase())b.classList.add('active')})
   if(lang==='it') alert('Italian version coming soon!')
 }
 
-// ── INIT ───────────────────────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────────
 loadContent()
 </script>
 </body>
