@@ -33,7 +33,7 @@
     .back-link { font-family:'DM Mono',monospace; font-size:.65rem; color:var(--muted); text-decoration:none; letter-spacing:.1em; white-space:nowrap; }
     .back-link:hover { color:var(--accent); }
     .topbar-title { font-family:'DM Mono',monospace; font-size:.68rem; color:var(--accent); letter-spacing:.1em; white-space:nowrap; }
-    .search-wrap { flex:1; position:relative; max-width:340px; }
+    .search-wrap { flex:1; position:relative; max-width:340px; min-width:0; }
     .search-wrap input { width:100%; background:var(--bg3); color:var(--text); border:1px solid var(--border); padding:.32rem 2rem .32rem .65rem; font-family:'DM Sans',sans-serif; font-size:.75rem; outline:none; }
     .search-wrap input:focus { border-color:var(--accent); }
     .search-wrap input::placeholder { color:var(--muted); }
@@ -44,8 +44,13 @@
     .bm-group { display:flex; gap:.2rem; }
     .bm-btn { font-family:'DM Mono',monospace; font-size:.55rem; padding:.22rem .45rem; background:var(--bg3); color:var(--muted); border:1px solid var(--border); cursor:pointer; transition:all .15s; white-space:nowrap; }
     .bm-btn.active { background:var(--accent); color:var(--bg); border-color:var(--accent); }
-    .layer-btn { font-family:'DM Mono',monospace; font-size:.55rem; padding:.22rem .45rem; background:var(--bg3); border:1px solid var(--border); cursor:pointer; color:var(--muted); }
+    .layer-btn { font-family:'DM Mono',monospace; font-size:.55rem; padding:.22rem .45rem; background:var(--bg3); border:1px solid var(--border); cursor:pointer; color:var(--muted); white-space:nowrap; }
     .layer-btn.on { color:#6ec86e; border-color:#6ec86e; }
+    .info-btn { font-family:'DM Mono',monospace; font-size:.7rem; padding:.18rem .5rem; background:var(--bg3); border:1px solid var(--border); cursor:pointer; color:var(--muted); white-space:nowrap; }
+    .info-btn:hover { color:var(--accent); border-color:var(--accent); }
+    .lang-group { display:flex; gap:.15rem; }
+    .lang-btn { font-family:'DM Mono',monospace; font-size:.55rem; padding:.22rem .42rem; background:var(--bg3); border:1px solid var(--border); cursor:pointer; color:var(--muted); }
+    .lang-btn.active { background:var(--accent); color:var(--bg); border-color:var(--accent); }
 
     /* ─── MAP ─── */
     #map { position: fixed; z-index: 10; background: var(--bg); }
@@ -91,6 +96,7 @@
     .cl { font-family:'DM Mono',monospace; font-size:.57rem; color:var(--muted); letter-spacing:.08em; margin-bottom:.28rem; display:block; }
     select { width:100%; background:var(--bg3); color:var(--text); border:1px solid var(--border); padding:.4rem .55rem; font-family:'DM Sans',sans-serif; font-size:.76rem; appearance:none; cursor:pointer; outline:none; }
     select:focus { border-color:var(--accent); }
+    select:disabled { opacity:.45; cursor:not-allowed; }
     .tr { display:flex; gap:.25rem; }
     .tb { flex:1; padding:.35rem 0; font-family:'DM Mono',monospace; font-size:.58rem; letter-spacing:.05em; text-transform:uppercase; background:var(--bg3); color:var(--muted); border:1px solid var(--border); cursor:pointer; transition:all .15s; }
     .tb.active { background:var(--accent); color:var(--bg); border-color:var(--accent); }
@@ -108,6 +114,14 @@
     .leg-tick-val { position:absolute; bottom:100%; left:50%; transform:translateX(-50%); font-family:'DM Mono',monospace; font-size:.55rem; color:var(--accent); background:var(--bg2); padding:1px 4px; border:1px solid var(--border); white-space:nowrap; margin-bottom:3px; }
     .leg-labs { display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:.55rem; color:var(--muted); }
 
+    /* ─── WINNER LEGEND (categorical) ─── */
+    .winner-legend { display:flex; flex-direction:column; gap:.25rem; max-height:140px; overflow-y:auto; }
+    .winner-legend::-webkit-scrollbar { width:3px; }
+    .winner-legend::-webkit-scrollbar-thumb { background:var(--border); }
+    .wl-item { display:flex; align-items:center; gap:.45rem; font-family:'DM Mono',monospace; font-size:.6rem; color:var(--muted); }
+    .wl-sw { width:11px; height:11px; flex-shrink:0; border:1px solid rgba(255,255,255,.08); }
+    .wl-cnt { color:#4a4a4a; margin-left:auto; font-size:.55rem; }
+
     /* ─── PIE / DELTA BARS WRAP ─── */
     .pie-wrap { height:150px; display:flex; align-items:center; justify-content:center; position:relative; }
     .ce { font-family:'DM Mono',monospace; font-size:.58rem; color:var(--border); letter-spacing:.08em; text-align:center; }
@@ -116,26 +130,44 @@
     #mobileControls {
       position: fixed; left: 0; right: 0;
       background: var(--bg2); border-bottom: 1px solid var(--border);
-      padding: .6rem .9rem; z-index: 300; display: none;
+      padding: .55rem .7rem; z-index: 300; display: none;
     }
-    .mcg { display:grid; grid-template-columns:1fr 1fr; gap:.45rem; margin-bottom:.45rem; }
+    .mcg { display:grid; grid-template-columns:1fr 1fr; gap:.4rem; margin-bottom:.4rem; }
+    .mc-row { display:flex; gap:.3rem; align-items:center; }
+    .mc-row .tr { flex:1; }
+    .mc-bm { display:flex; gap:.18rem; flex-shrink:0; }
+    .mc-bm .bm-btn { padding:.3rem .35rem; font-size:.5rem; }
 
-    /* ─── MOBILE FLOATING LEGEND (always visible) ─── */
+    /* ─── MOBILE FLOATING LEGEND ─── */
     #mFloatingLegend {
-      position: fixed;
-      z-index: 250;
+      position: fixed; z-index: 250;
       background: rgba(20,20,20,.94);
       backdrop-filter: blur(8px);
       border: 1px solid var(--border);
       padding: .45rem .6rem .35rem;
-      display: none;
-      pointer-events: none;
+      display: none; pointer-events: none;
       border-radius: 4px;
     }
     .mfl-title { font-family:'DM Mono',monospace; font-size:.5rem; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; margin-bottom:.25rem; }
     .mfl-bar { height:6px; border-radius:1px; margin-bottom:.22rem; position:relative; }
     .mfl-tick { position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--accent); display:none; box-shadow:0 0 5px rgba(200,169,110,.7); transition:left .12s ease; }
     .mfl-labs { display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:.5rem; color:var(--muted); }
+    .mfl-winner { display:flex; flex-direction:column; gap:.2rem; max-height:120px; overflow-y:auto; pointer-events:auto; }
+    .mfl-winner .wl-item { font-size:.55rem; }
+    .mfl-winner .wl-sw { width:9px; height:9px; }
+
+    /* ─── MOBILE FLOATING BAR-CHART BUTTON ─── */
+    #mBarFab {
+      position: fixed; bottom: 14px; right: 14px;
+      z-index: 260;
+      width: 48px; height: 48px;
+      background: var(--accent); color: var(--bg);
+      border: none; border-radius: 50%;
+      box-shadow: 0 4px 14px rgba(0,0,0,.5);
+      font-size: 1.2rem; cursor: pointer; display: none;
+      align-items: center; justify-content: center;
+    }
+    #mBarFab svg { width:22px; height:22px; }
 
     /* ─── MOBILE BOTTOM SHEET ─── */
     #mSheetBackdrop {
@@ -172,6 +204,32 @@
     .ms-pie-wrap { height:200px; position:relative; }
     .ms-bar-wrap { height:170px; }
 
+    /* ─── NOTICE MODAL ─── */
+    #noticeBackdrop {
+      position: fixed; inset: 0;
+      background: rgba(13,13,13,.85);
+      z-index: 900;
+      display: none; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    #noticeBackdrop.show { display: flex; }
+    #noticeModal {
+      max-width: 540px; width: 100%;
+      background: var(--bg2); border: 1px solid var(--accent);
+      padding: 1.6rem 1.6rem 1.4rem;
+      position: relative;
+      box-shadow: 0 10px 40px rgba(0,0,0,.6);
+    }
+    .notice-close { position:absolute; top:.5rem; right:.7rem; background:none; border:none; color:var(--muted); font-size:1.4rem; line-height:1; cursor:pointer; padding:.2rem .4rem; }
+    .notice-close:hover { color:var(--text); }
+    .notice-tag { font-family:'DM Mono',monospace; font-size:.55rem; color:var(--accent); letter-spacing:.2em; margin-bottom:.6rem; }
+    .notice-title { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; margin-bottom:.8rem; line-height:1.2; }
+    .notice-body { font-size:.85rem; line-height:1.55; color:var(--text); margin-bottom:.8rem; font-weight:300; }
+    .notice-source { font-family:'DM Mono',monospace; font-size:.6rem; color:var(--muted); margin-bottom:1rem; }
+    .notice-source a { color:var(--accent); text-decoration:none; word-break:break-all; }
+    .notice-source a:hover { text-decoration:underline; }
+    .notice-hint { font-family:'DM Mono',monospace; font-size:.55rem; color:#4a4a4a; letter-spacing:.1em; text-align:center; margin-top:.5rem; }
+
     /* ─── LOADING ─── */
     #loading {
       position: fixed; inset: 0; z-index: 800;
@@ -191,63 +249,77 @@
 </head>
 <body>
 
-<!-- TOPBAR -->
+<!-- TOPBAR (desktop full / mobile minimal) -->
 <div id="topbar">
-  <a href="../../index.html" class="back-link">← Back</a>
-  <span class="topbar-title" id="topbarTitle">Florence & Sesto — Electoral Atlas</span>
+  <a href="../../index.html" class="back-link" data-i18n="back">← Back</a>
+  <span class="topbar-title" id="topbarTitle" data-i18n="title">Florence & Sesto — Electoral Atlas</span>
   <div class="search-wrap">
-    <input type="text" id="searchInput" placeholder="Search address…" autocomplete="off"/>
+    <input type="text" id="searchInput" data-i18n-ph="searchPh" placeholder="Search address or sezione #" autocomplete="off"/>
     <button class="search-btn" id="searchBtn">⌕</button>
     <div class="search-results" id="searchResults"></div>
   </div>
-  <div class="bm-group">
+  <div class="bm-group" id="desktopBmGroup">
     <button class="bm-btn active" data-bm="light">Light</button>
     <button class="bm-btn" data-bm="dark">Dark</button>
     <button class="bm-btn" data-bm="sat">Sat</button>
     <button class="bm-btn" data-bm="osm">OSM</button>
   </div>
-  <button class="layer-btn on" id="layerToggle">● ON</button>
+  <button class="layer-btn on" id="layerToggle" title="Toggle data layer">● ON</button>
+  <button class="info-btn" id="diffMappingBtn" style="display:none" title="Party matching for differences">⇄</button>
+  <button class="info-btn" id="infoOpenBtn" title="About this data">ⓘ</button>
+  <div class="lang-group">
+    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="it">IT</button>
+  </div>
 </div>
 
-<!-- MAP -->
 <div id="map"></div>
 
-<!-- LOADING -->
 <div id="loading" class="hidden">LOADING…</div>
 
 <!-- ─── DESKTOP PANEL ─── -->
 <div id="deskPanel">
   <div class="ps">
-    <div class="psl">Controls</div>
-    <div class="cg"><label class="cl">Election</label>
+    <div class="psl" data-i18n="controls">Controls</div>
+    <div class="cg"><label class="cl" data-i18n="election">Election</label>
       <select id="electionSelect">
-        <option value="amm2024">Comunali 2024</option>
-        <option value="reg2025">Regionali 2025</option>
-        <option value="diff">Differences 2025–2024</option>
+        <option value="amm2024" data-i18n="el_amm">Comunali 2024</option>
+        <option value="reg2025" data-i18n="el_reg">Regionali 2025</option>
+        <option value="diff" data-i18n="el_diff">Differences 2025–2024</option>
       </select>
     </div>
-    <div class="cg"><label class="cl">Party / List</label><select id="partySelect"></select></div>
-    <div class="cg"><label class="cl">Metric</label>
+    <div class="cg"><label class="cl" data-i18n="view">View</label>
       <div class="tr">
-        <button class="tb active" data-metric="pct">% Share</button>
-        <button class="tb" data-metric="voti">Abs. Votes</button>
+        <button class="tb active" data-view="party" id="viewPartyBtn" data-i18n="v_party">Party Choice</button>
+        <button class="tb" data-view="winner" id="viewWinnerBtn" data-i18n="v_winner">Winner Map</button>
+      </div>
+    </div>
+    <div class="cg" id="partyCG"><label class="cl" data-i18n="party">Party / List</label><select id="partySelect"></select></div>
+    <div class="cg" id="metricCG"><label class="cl" data-i18n="metric">Metric</label>
+      <div class="tr">
+        <button class="tb active" data-metric="pct" id="metric_pct">% Share</button>
+        <button class="tb" data-metric="voti" id="metric_voti">Abs. Votes</button>
+        <button class="tb" data-metric="relpct" id="metric_relpct" style="display:none">% Change</button>
       </div>
     </div>
   </div>
   <div class="ps">
-    <div class="psl">Selected Sezione</div>
-    <div class="info-box" id="infoBox"><p class="ip">— hover or click —</p></div>
+    <div class="psl" data-i18n="selected">Selected Sezione</div>
+    <div class="info-box" id="infoBox"><p class="ip" data-i18n="hint_hover">— hover or click —</p></div>
   </div>
   <div class="ps">
-    <div class="psl">Legend</div>
-    <div class="leg-bar" id="legendBar">
-      <div class="leg-tick" id="legendTick"><div class="leg-tick-val" id="legendTickVal"></div></div>
+    <div class="psl" id="legendTitle">Legend</div>
+    <div id="legendGradient">
+      <div class="leg-bar" id="legendBar">
+        <div class="leg-tick" id="legendTick"><div class="leg-tick-val" id="legendTickVal"></div></div>
+      </div>
+      <div class="leg-labs"><span id="lgMin"></span><span id="lgMid"></span><span id="lgMax"></span></div>
     </div>
-    <div class="leg-labs"><span id="lgMin"></span><span id="lgMid"></span><span id="lgMax"></span></div>
+    <div class="winner-legend" id="legendWinner" style="display:none"></div>
   </div>
   <div class="ps" style="flex:1">
-    <div class="psl" id="breakdownLbl">Sezione breakdown</div>
-    <div class="pie-wrap"><p class="ce" id="pieEmpty">Click a sezione</p><canvas id="pieChart" style="display:none"></canvas></div>
+    <div class="psl" id="breakdownLbl" data-i18n="bdown">Sezione breakdown</div>
+    <div class="pie-wrap"><p class="ce" id="pieEmpty" data-i18n="click_sez">Click a sezione</p><canvas id="pieChart" style="display:none"></canvas></div>
   </div>
 </div>
 <div id="panelResizeHandle"></div>
@@ -255,36 +327,59 @@
 <!-- ─── DESKTOP BAR ─── -->
 <div id="deskBar">
   <div id="barResizeHandle"></div>
-  <div class="bar-label">All sezioni ranked — hover to highlight, click to lock + zoom</div>
+  <div class="bar-label" data-i18n="bar_label">All sezioni ranked — hover to highlight, click to lock + zoom</div>
   <div id="barChartWrap"><canvas id="barChart"></canvas></div>
 </div>
 
 <!-- ─── MOBILE CONTROLS ─── -->
 <div id="mobileControls">
   <div class="mcg">
-    <div class="cg" style="margin:0"><label class="cl">Election</label>
+    <div class="cg" style="margin:0"><label class="cl" data-i18n="election">Election</label>
       <select id="m_electionSelect">
-        <option value="amm2024">Comunali 2024</option>
-        <option value="reg2025">Regionali 2025</option>
-        <option value="diff">Differences 2025–2024</option>
+        <option value="amm2024" data-i18n="el_amm">Comunali 2024</option>
+        <option value="reg2025" data-i18n="el_reg">Regionali 2025</option>
+        <option value="diff" data-i18n="el_diff">Differences 2025–2024</option>
       </select>
     </div>
-    <div class="cg" style="margin:0"><label class="cl">Party</label><select id="m_partySelect"></select></div>
+    <div class="cg" style="margin:0"><label class="cl" data-i18n="view">View</label>
+      <select id="m_viewSelect">
+        <option value="party" data-i18n="v_party">Party Choice</option>
+        <option value="winner" data-i18n="v_winner">Winner Map</option>
+      </select>
+    </div>
   </div>
-  <div class="tr">
-    <button class="tb active" data-mmetric="pct">% Share</button>
-    <button class="tb" data-mmetric="voti">Abs. Votes</button>
+  <div class="cg" id="m_partyCG" style="margin-bottom:.4rem"><label class="cl" data-i18n="party_short">Party</label><select id="m_partySelect"></select></div>
+  <div class="mc-row" id="m_metricRow">
+    <div class="tr">
+      <button class="tb active" data-mmetric="pct" id="m_metric_pct">% Share</button>
+      <button class="tb" data-mmetric="voti" id="m_metric_voti">Abs. Votes</button>
+      <button class="tb" data-mmetric="relpct" id="m_metric_relpct" style="display:none">% Change</button>
+    </div>
+    <div class="mc-bm">
+      <button class="bm-btn active" data-bm="light">L</button>
+      <button class="bm-btn" data-bm="dark">D</button>
+      <button class="bm-btn" data-bm="sat">S</button>
+      <button class="bm-btn" data-bm="osm">O</button>
+    </div>
   </div>
 </div>
 
 <!-- ─── MOBILE FLOATING LEGEND ─── -->
 <div id="mFloatingLegend">
   <div class="mfl-title" id="mflTitle">Legend</div>
-  <div class="mfl-bar" id="mflBar">
-    <div class="mfl-tick" id="mflTick"></div>
+  <div id="mflGradient">
+    <div class="mfl-bar" id="mflBar">
+      <div class="mfl-tick" id="mflTick"></div>
+    </div>
+    <div class="mfl-labs"><span id="mflMin"></span><span id="mflMax"></span></div>
   </div>
-  <div class="mfl-labs"><span id="mflMin"></span><span id="mflMax"></span></div>
+  <div class="mfl-winner" id="mflWinner" style="display:none"></div>
 </div>
+
+<!-- ─── MOBILE BAR-CHART FLOATING BUTTON ─── -->
+<button id="mBarFab" title="Show ranked bar chart">
+  <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="12" width="3" height="8"/><rect x="9" y="7" width="3" height="13"/><rect x="15" y="3" width="3" height="17"/></svg>
+</button>
 
 <!-- ─── MOBILE BOTTOM SHEET ─── -->
 <div id="mSheetBackdrop"></div>
@@ -295,17 +390,66 @@
     <button class="ms-close" id="mSheetClose">✕</button>
   </div>
   <div class="ms-body">
-    <div class="ms-section">
+    <div class="ms-section" id="mSheetInfoSection">
       <div id="mSheetInfo"><p class="ip" style="text-align:left">—</p></div>
     </div>
-    <div class="ms-section">
-      <div class="psl" style="margin-bottom:.5rem" id="mSheetBreakdownLbl">Breakdown</div>
+    <div class="ms-section" id="mSheetPieSection">
+      <div class="psl" style="margin-bottom:.5rem" id="mSheetBreakdownLbl" data-i18n="bdown_short">Breakdown</div>
       <div class="ms-pie-wrap"><canvas id="mSheetPie"></canvas></div>
     </div>
     <div class="ms-section">
-      <div class="psl" style="margin-bottom:.5rem">All sezioni ranked</div>
+      <div class="psl" style="margin-bottom:.5rem" data-i18n="bar_short">All sezioni ranked</div>
       <div class="ms-bar-wrap"><canvas id="mSheetBar"></canvas></div>
     </div>
+  </div>
+</div>
+
+<!-- ─── NOTICE MODAL ─── -->
+<div id="noticeBackdrop">
+  <div id="noticeModal">
+    <button class="notice-close" id="noticeCloseBtn">✕</button>
+    <div class="notice-tag" data-i18n="notice_tag">⚠ DISCLAIMER · DATA ACCURACY</div>
+    <div class="notice-title" data-i18n="notice_title">About the electoral sezioni boundaries</div>
+    <div class="notice-body" id="noticeBodyEN">
+      <strong>Warning:</strong> the geographic archive used in this dashboard is purely indicative.
+      The correspondence of an electoral sezione may not exactly reflect the official assignment.
+      In case of doubt, contact the Florence Electoral Office at:
+      055-328.3610 / 3620 / 3633.
+    </div>
+    <div class="notice-body" id="noticeBodyIT" style="border-top:1px solid var(--border); padding-top:.8rem; margin-top:.4rem;">
+      <strong>Attenzione:</strong> il presente archivio geografico è puramente indicativo.
+      La corrispondenza di una sezione elettorale potrebbe non rispecchiare puntualmente
+      l'esatta attribuzione. In caso di dubbi contattare l'Ufficio Elettorale ai numeri:
+      055-328.3610 / 3620 / 3633.
+    </div>
+    <div class="notice-source">
+      Source: <a href="https://opendata.comune.fi.it/page_dataset_show?id=3870c875-d92d-41dd-b211-2f3433da8dfd" target="_blank" rel="noopener">opendata.comune.fi.it · Sezioni Elettorali</a>
+    </div>
+    <div class="notice-hint" data-i18n="notice_hint">click ✕ or tap outside to close</div>
+  </div>
+</div>
+
+<!-- ─── PARTY MAPPING MODAL ─── -->
+<div id="mappingBackdrop" style="position:fixed;inset:0;background:rgba(13,13,13,.85);z-index:900;display:none;align-items:center;justify-content:center;padding:1rem;">
+  <div style="max-width:600px;width:100%;background:var(--bg2);border:1px solid var(--accent);padding:1.6rem 1.6rem 1.4rem;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto;">
+    <button class="notice-close" id="mappingCloseBtn">✕</button>
+    <div class="notice-tag" data-i18n="map_tag">⇄ PARTY MATCHING · DIFFERENCES 2025–2024</div>
+    <div class="notice-title" data-i18n="map_title">How parties are matched</div>
+    <div class="notice-body" style="margin-bottom:.4rem" data-i18n="map_intro">
+      Differences are computed across two different elections (Comunali 2024 vs. Regionali 2025), where party lists do not always have identical names. The 7 parties below use the matching shown here. Civic lists and minor parties have no equivalent across both elections and are not included.
+    </div>
+    <table id="mappingTable" style="width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:.7rem;margin:.8rem 0 .6rem;">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border);color:var(--muted);">
+          <th style="text-align:left;padding:.4rem .3rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;font-size:.55rem;" data-i18n="map_th_id">Short ID</th>
+          <th style="text-align:left;padding:.4rem .3rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;font-size:.55rem;" data-i18n="map_th_24">Comunali 2024</th>
+          <th style="text-align:left;padding:.4rem .3rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;font-size:.55rem;" data-i18n="map_th_25">Regionali 2025</th>
+        </tr>
+      </thead>
+      <tbody id="mappingTbody"></tbody>
+    </table>
+    <div class="notice-body" id="mapNoteBlock" style="font-size:.75rem;border-top:1px solid var(--border);padding-top:.7rem;margin-top:.6rem"></div>
+    <div class="notice-hint" data-i18n="notice_hint">click ✕ or tap outside to close</div>
   </div>
 </div>
 
@@ -363,9 +507,132 @@ const PARTIES = {
   ]
 }
 
+// Mapping used to compute relative % change (2025 vs 2024) for the 7 diff parties.
+// The "vot24" / "vot25" keys are the absolute-vote column names in the source GeoJSONs.
+const DIFF_PARTY_MAP = {
+  PD:           { vot24:'PARTITO_DEMOCRATICO_SARA_FUNARO_SINDACA', vot25:'PARTITO_DEMOCRATICO',                                  lbl24:'PD (Funaro)',           lbl25:'Partito Democratico' },
+  FdI:          { vot24:'FRATELLI_DITALIA_GIORGIA_MELONI',         vot25:'FRATELLI_DITALIA',                                     lbl24:'FdI (Meloni)',          lbl25:'Fratelli d\'Italia' },
+  FI:           { vot24:'PARTITO_POPOLARE_EUROPEO_FORZA_ITALIA_BERLUSCONI_SCHMIDT_SINDACO', vot25:'FORZA_ITALIA_UDC_TOMASI_PRESIDENTE', lbl24:'FI/PPE (Schmidt)', lbl25:'FI-UDC (Tomasi)' },
+  Lega:         { vot24:'LEGA_SCHMIDT_SINDACO',                    vot25:'LEGA_TOSCANA',                                         lbl24:'Lega (Schmidt)',        lbl25:'Lega Toscana' },
+  M5S:          { vot24:'MOVIMENTO_5_STELLE_2050',                 vot25:'MOVIMENTO_5_STELLE',                                   lbl24:'M5S 2050',              lbl25:'M5S' },
+  AVS:          { vot24:'ALLEANZA_VERDI_SINISTRA',                 vot25:'ALLEANZA_VERDI_E_SINISTRA',                            lbl24:'Verdi-Sinistra',        lbl25:'Verdi e Sinistra' },
+  ToscanaRossa: { vot24:'SINISTRA_PROGETTO_COMUNE',                vot25:'TOSCANA_ROSSA',                                        lbl24:'Sinistra Progetto Comune (2024)', lbl25:'Toscana Rossa (2025)' },
+}
+// Visualization cap for relative % change (extreme values get capped on the map but actual value shown in tooltip).
+const RELPCT_CAP = 200
+
+// ── I18N ─────────────────────────────────────────────────────────────────────
+const I18N = {
+  en: {
+    back:'← Back', title:'Florence & Sesto — Electoral Atlas',
+    searchPh:'Search address or sezione #',
+    controls:'Controls', election:'Election',
+    el_amm:'Comunali 2024', el_reg:'Regionali 2025', el_diff:'Differences 2025–2024',
+    view:'View', v_party:'Party Choice', v_winner:'Winner Map',
+    party:'Party / List', party_short:'Party',
+    metric:'Metric',
+    m_pct:'% Share', m_voti:'Abs. Votes', m_relpct:'% Change',
+    m_pct_diff:'pp', m_voti_diff:'Voti', m_relpct_diff:'Var. %',
+    selected:'Selected Sezione', hint_hover:'— hover or click —',
+    legend:'Legend', winner_legend:'Winner per sezione', winners:'Winners',
+    bdown:'Sezione breakdown', bdown_diff:'Sezione delta breakdown',
+    bdown_short:'Breakdown', bdown_short_diff:'Delta breakdown (2025 − 2024)',
+    click_sez:'Click a sezione',
+    bar_label:'All sezioni ranked — hover to highlight, click to lock + zoom',
+    bar_short:'All sezioni ranked',
+    loading:'LOADING…',
+    cap_voti:'( ) = absolute votes', cap_pct:'( ) = % share',
+    cap_diff_pct:'( ) = vote count change',
+    cap_diff_voti:'( ) = pp change',
+    cap_diff_relpct:'( ) = absolute votes 2024 → 2025',
+    winning:'winning party', no_data:'no data',
+    no_results:'No results', no_sez:'No sezione found',
+    notice_tag:'⚠ DISCLAIMER · DATA ACCURACY',
+    notice_title:'About the electoral sezioni boundaries',
+    notice_hint:'click ✕ or tap outside to close',
+    map_tag:'⇄ PARTY MATCHING · DIFFERENCES 2025–2024',
+    map_title:'How parties are matched',
+    map_intro:'Differences are computed across two different elections (Comunali 2024 vs. Regionali 2025), where party lists do not always have identical names. The 7 parties below use the matching shown here. Civic lists and minor parties have no equivalent across both elections and are not included.',
+    map_th_id:'Short ID', map_th_24:'Comunali 2024', map_th_25:'Regionali 2025',
+    map_note:'Note on metrics:',
+    on:'● ON', off:'○ OFF', sez_won:'sezioni won',
+    bar_winner_lbl:'Sezioni won per party'
+  },
+  it: {
+    back:'← Indietro', title:'Firenze & Sesto — Atlante Elettorale',
+    searchPh:'Cerca indirizzo o sezione #',
+    controls:'Controlli', election:'Elezione',
+    el_amm:'Comunali 2024', el_reg:'Regionali 2025', el_diff:'Differenze 2025–2024',
+    view:'Vista', v_party:'Per Partito', v_winner:'Mappa Vincitori',
+    party:'Partito / Lista', party_short:'Partito',
+    metric:'Metrica',
+    m_pct:'% Voti', m_voti:'Voti Assoluti', m_relpct:'Variazione %',
+    m_pct_diff:'pp', m_voti_diff:'Voti', m_relpct_diff:'Var. %',
+    selected:'Sezione Selezionata', hint_hover:'— passa o clicca —',
+    legend:'Legenda', winner_legend:'Vincitore per sezione', winners:'Vincitori',
+    bdown:'Dettaglio sezione', bdown_diff:'Variazioni nella sezione',
+    bdown_short:'Dettaglio', bdown_short_diff:'Variazioni (2025 − 2024)',
+    click_sez:'Clicca una sezione',
+    bar_label:'Tutte le sezioni in ordine — passa per evidenziare, clicca per fissare + zoom',
+    bar_short:'Tutte le sezioni in ordine',
+    loading:'CARICAMENTO…',
+    cap_voti:'( ) = voti assoluti', cap_pct:'( ) = % voti',
+    cap_diff_pct:'( ) = differenza voti',
+    cap_diff_voti:'( ) = differenza pp',
+    cap_diff_relpct:'( ) = voti assoluti 2024 → 2025',
+    winning:'partito vincente', no_data:'nessun dato',
+    no_results:'Nessun risultato', no_sez:'Nessuna sezione trovata',
+    notice_tag:'⚠ AVVISO · ACCURATEZZA DATI',
+    notice_title:'Sui confini delle sezioni elettorali',
+    notice_hint:'clicca ✕ o tocca fuori per chiudere',
+    map_tag:'⇄ ABBINAMENTO PARTITI · DIFFERENZE 2025–2024',
+    map_title:'Come sono abbinati i partiti',
+    map_intro:'Le differenze sono calcolate tra due elezioni diverse (Comunali 2024 e Regionali 2025), in cui le liste non hanno sempre lo stesso nome. I 7 partiti qui sotto usano l\'abbinamento mostrato. Le liste civiche e i partiti minori non hanno un equivalente in entrambe le elezioni e sono esclusi.',
+    map_th_id:'ID Breve', map_th_24:'Comunali 2024', map_th_25:'Regionali 2025',
+    map_note:'Nota sulle metriche:',
+    on:'● ON', off:'○ OFF', sez_won:'sezioni vinte',
+    bar_winner_lbl:'Sezioni vinte per partito'
+  }
+}
+let LANG = 'en'
+try{ const saved = localStorage.getItem('efi_lang'); if(saved==='it'||saved==='en') LANG = saved }catch(e){}
+function t(k){ return (I18N[LANG] && I18N[LANG][k]) || I18N.en[k] || k }
+
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.dataset.i18n) })
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder = t(el.dataset.i18nPh) })
+  // Notice modal: show only the active-language body
+  const enBody = document.getElementById('noticeBodyEN'), itBody = document.getElementById('noticeBodyIT')
+  if(enBody) enBody.style.display = LANG==='en' ? '' : 'none'
+  if(itBody){ itBody.style.display = LANG==='it' ? '' : 'none'; if(LANG==='it'){ itBody.style.borderTop='none'; itBody.style.paddingTop='0'; itBody.style.marginTop='0' } }
+  // Lang button active state
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active', b.dataset.lang===LANG))
+  // Refresh dynamic strings
+  document.getElementById('loading').textContent = t('loading')
+  document.getElementById('layerToggle').textContent = S.layerOn ? t('on') : t('off')
+  // Metric button labels respect current election
+  if(typeof updateMetricButtonsForElection === 'function') updateMetricButtonsForElection()
+  // Re-render legend / info / breakdown if data is loaded
+  if(geojsonLayer){
+    updateLegend()
+    if(S.locked){
+      const props = findPropsBySezione(S.locked)
+      if(props){ setInfo(props, true); drawBreakdown(props) }
+    } else { clearInfo() }
+  }
+}
+function setLang(lang){
+  LANG = lang
+  try{ localStorage.setItem('efi_lang', lang) }catch(e){}
+  applyI18n()
+}
+
 // ── STATE ─────────────────────────────────────────────────────────────────────
-const S = { election:'amm2024', party:PARTIES.amm2024[0], metric:'pct', locked:null, layerOn:true, data:{} }
+const S = { election:'amm2024', party:PARTIES.amm2024[0], metric:'pct', view:'winner', locked:null, layerOn:true, data:{} }
 let lockedBarIdx = null
+
+// Default view per election
+function defaultViewFor(el){ return el==='diff' ? 'party' : 'winner' }
 
 // ── LAYOUT ────────────────────────────────────────────────────────────────────
 const TOPBAR_H = 46
@@ -377,12 +644,11 @@ function isMobile(){ return window.innerWidth <= 700 }
 function positionMap(){
   const mapEl = document.getElementById('map')
   if(isMobile()){
-    const ctrlH = document.getElementById('mobileControls').offsetHeight || 90
+    const ctrlH = document.getElementById('mobileControls').offsetHeight || 110
     mapEl.style.top    = (TOPBAR_H + ctrlH) + 'px'
     mapEl.style.left   = '0'
     mapEl.style.right  = '0'
     mapEl.style.bottom = '0'
-    // floating legend position
     const fl = document.getElementById('mFloatingLegend')
     fl.style.top   = (TOPBAR_H + ctrlH + 8) + 'px'
     fl.style.right = '8px'
@@ -405,10 +671,13 @@ function positionMap(){
 function showMobileUI(show){
   document.getElementById('mobileControls').style.display = show ? 'block' : 'none'
   document.getElementById('mFloatingLegend').style.display = show ? 'block' : 'none'
+  document.getElementById('mBarFab').style.display = show ? 'flex' : 'none'
   document.getElementById('deskPanel').style.display = show ? 'none' : 'flex'
   document.getElementById('panelResizeHandle').style.display = show ? 'none' : 'block'
   document.getElementById('deskBar').style.display = show ? 'none' : 'block'
   document.getElementById('topbarTitle').style.display = show ? 'none' : ''
+  document.getElementById('desktopBmGroup').style.display = show ? 'none' : 'flex'
+  document.getElementById('layerToggle').style.display = show ? 'none' : ''
   if(!show){ closeMobileSheet(false) }
 }
 
@@ -435,46 +704,122 @@ function lerp(c1,c2,t){
   t=Math.max(0,Math.min(1,t))
   return`rgb(${Math.round(r1+(r2-r1)*t)},${Math.round(g1+(g2-g1)*t)},${Math.round(b1+(b2-b1)*t)})`
 }
+// Lighten a hex color toward white by amount (0..1). 0=identical, 1=white.
+function lighten(hex, amt){
+  const [r,g,b] = hexRgb(hex)
+  return [Math.round(r+(255-r)*amt), Math.round(g+(255-g)*amt), Math.round(b+(255-b)*amt)]
+}
 let currentRange={min:0,max:100}
 function computeRange(gj,field){
   const v=gj.features.map(f=>f.properties[field]).filter(v=>v!=null&&!isNaN(v))
+  if(!v.length) return {min:0,max:0}
+  // Cap relative-change visualization at ±RELPCT_CAP for readability
+  if(S.election==='diff' && S.metric==='relpct'){
+    return {min:-RELPCT_CAP, max:RELPCT_CAP}
+  }
   return{min:Math.min(...v),max:Math.max(...v)}
 }
+// PALETTE (item 7): light tint of party color → full party color
 function getColor(v){
   if(v==null||isNaN(v))return'#1c1c1c'
   if(S.election==='diff'){
-    const am=Math.max(Math.abs(currentRange.min),Math.abs(currentRange.max))||1
-    const t=v/am
+    let am, val
+    if(S.metric==='relpct'){
+      am = RELPCT_CAP
+      val = Math.max(-RELPCT_CAP, Math.min(RELPCT_CAP, v))
+    } else {
+      am = Math.max(Math.abs(currentRange.min),Math.abs(currentRange.max))||1
+      val = v
+    }
+    const t=val/am
     if(t<0)return lerp('#ffffff','#3a7abf',Math.min(-t,1))
     if(t>0)return lerp('#ffffff','#bf3a3a',Math.min(t,1))
     return'#ffffff'
   }
   const{min,max}=currentRange
-  return lerp('#1a1a1a',S.party.color,max===min?.5:(v-min)/(max-min))
+  const lightStart = lighten(S.party.color, 0.85) // very pale tint
+  const t = max===min ? .5 : (v-min)/(max-min)
+  return lerp(lightStart, S.party.color, t)
+}
+
+// ── WINNER PER SEZIONE (item 8) ───────────────────────────────────────────────
+function winnerOfFeature(props){
+  if(S.election==='diff') return null
+  let bestId=null, bestPct=-Infinity
+  for(const p of PARTIES[S.election]){
+    const v = props[`${p.id}_pct`]
+    if(v!=null && !isNaN(v) && v>bestPct){ bestPct=v; bestId=p.id }
+  }
+  if(bestId==null) return null
+  const party = PARTIES[S.election].find(p=>p.id===bestId)
+  return {id:bestId, label:party.label, color:party.color, pct:bestPct}
+}
+
+// Build winner-counts across all sezioni for legend
+let winnerSummary = {} // { id: {count, party} }
+function computeWinnerSummary(gj){
+  winnerSummary = {}
+  gj.features.forEach(f=>{
+    const w = winnerOfFeature(f.properties); if(!w) return
+    if(!winnerSummary[w.id]) winnerSummary[w.id]={count:0, party:PARTIES[S.election].find(p=>p.id===w.id)}
+    winnerSummary[w.id].count++
+  })
 }
 
 // ── LEGEND ────────────────────────────────────────────────────────────────────
 function updateLegend(){
+  const grad = document.getElementById('legendGradient')
+  const winnerEl = document.getElementById('legendWinner')
+  const mflGrad = document.getElementById('mflGradient')
+  const mflWin = document.getElementById('mflWinner')
+  const title = document.getElementById('legendTitle')
+  const mflTitle = document.getElementById('mflTitle')
+
+  if(S.view==='winner'){
+    grad.style.display='none'; winnerEl.style.display='flex'
+    mflGrad.style.display='none'; mflWin.style.display='flex'
+    title.textContent = t('winner_legend')
+    mflTitle.textContent = t('winners')
+    // Build legend items sorted by count desc — only parties that won ≥1
+    const items = Object.values(winnerSummary).sort((a,b)=>b.count-a.count)
+    const html = items.map(it=>`<div class="wl-item"><span class="wl-sw" style="background:${it.party.color}"></span><span>${it.party.label}</span><span class="wl-cnt">${it.count}</span></div>`).join('')
+    winnerEl.innerHTML = html
+    mflWin.innerHTML = html
+    clearLegendTick()
+    return
+  }
+
+  grad.style.display=''; winnerEl.style.display='none'
+  mflGrad.style.display=''; mflWin.style.display='none'
+
   const isDiff = S.election==='diff'
+  const isRel = isDiff && S.metric==='relpct'
   const u = S.metric==='pct' ? '%' : ' v'
-  const diffUnit = S.metric==='pct' ? 'pp' : 'voti'
-  const am = Math.max(Math.abs(currentRange.min),Math.abs(currentRange.max)).toFixed(1)
-  const grad = isDiff ? 'linear-gradient(to right,#3a7abf,#fff,#bf3a3a)' : `linear-gradient(to right,#1a1a1a,${S.party.color})`
-  const minTxt = isDiff ? `-${am} ${diffUnit}` : `${currentRange.min.toFixed(1)}${u}`
+  const diffUnit = S.metric==='pct' ? 'pp' : (S.metric==='relpct' ? '%' : 'voti')
+  const am = isRel ? RELPCT_CAP.toFixed(0) : Math.max(Math.abs(currentRange.min),Math.abs(currentRange.max)).toFixed(1)
+  const lightStart = `rgb(${lighten(S.party.color,0.85).join(',')})`
+  const grad_css = isDiff ? 'linear-gradient(to right,#3a7abf,#fff,#bf3a3a)' : `linear-gradient(to right,${lightStart},${S.party.color})`
+  const minTxt = isDiff ? `-${am}${isRel?'%':' '+diffUnit}${isRel?' '+(LANG==='it'?'(max)':'(cap)'):''}` : `${currentRange.min.toFixed(1)}${u}`
   const midTxt = isDiff ? '0' : ''
-  const maxTxt = isDiff ? `+${am} ${diffUnit}` : `${currentRange.max.toFixed(1)}${u}`
-  const lb = document.getElementById('legendBar'); if(lb) lb.style.background = grad
-  const mfb = document.getElementById('mflBar'); if(mfb) mfb.style.background = grad
+  const maxTxt = isDiff ? `+${am}${isRel?'%':' '+diffUnit}${isRel?' '+(LANG==='it'?'(max)':'(cap)'):''}` : `${currentRange.max.toFixed(1)}${u}`
+  document.getElementById('legendBar').style.background = grad_css
+  document.getElementById('mflBar').style.background = grad_css
   const set = (id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v }
   set('lgMin',minTxt); set('lgMid',midTxt); set('lgMax',maxTxt)
   set('mflMin',minTxt); set('mflMax',maxTxt)
-  set('mflTitle', isDiff ? `${S.party.label.replace(' ∆','')} · ∆ 2025-2024` : `${S.party.label} · ${S.metric==='pct'?'%':'voti'}`)
+  const metricLabel = isRel ? 'Variazione %' : (S.metric==='pct' ? (isDiff?'pp':'%') : 'voti')
+  title.textContent = isDiff ? `${S.party.label.replace(' ∆','')} · ∆ 2025-2024 (${metricLabel})` : `${S.party.label} · ${S.metric==='pct'?'%':'voti'}`
+  mflTitle.textContent = title.textContent
   clearLegendTick()
 }
 
 function legendPctFromValue(v){
   if(v==null||isNaN(v)) return null
   if(S.election==='diff'){
+    if(S.metric==='relpct'){
+      const capped = Math.max(-RELPCT_CAP, Math.min(RELPCT_CAP, v))
+      return Math.max(0,Math.min(100,(capped/RELPCT_CAP+1)/2*100))
+    }
     const am=Math.max(Math.abs(currentRange.min),Math.abs(currentRange.max))||1
     return Math.max(0,Math.min(100,(v/am+1)/2*100))
   }
@@ -483,6 +828,7 @@ function legendPctFromValue(v){
 }
 
 function updateLegendTick(value){
+  if(S.view==='winner'){ clearLegendTick(); return }
   const pct = legendPctFromValue(value)
   const ticks = [
     {tick:document.getElementById('legendTick'), val:document.getElementById('legendTickVal')},
@@ -492,9 +838,11 @@ function updateLegendTick(value){
     ticks.forEach(({tick})=>{ if(tick) tick.style.display='none' })
     return
   }
-  const u = S.election==='diff' ? (S.metric==='pct'?' pp':' voti') : (S.metric==='pct'?'%':' v')
+  const isRel = S.election==='diff' && S.metric==='relpct'
+  const u = isRel ? '%' : (S.election==='diff' ? (S.metric==='pct'?' pp':' voti') : (S.metric==='pct'?'%':' v'))
   const sign = S.election==='diff' && value>0 ? '+' : ''
-  const txt = `${sign}${(+value).toFixed(1)}${u}`
+  const isOutlier = isRel && Math.abs(value)>RELPCT_CAP
+  const txt = `${sign}${(+value).toFixed(1)}${u}${isOutlier?' ⚠':''}`
   ticks.forEach(({tick,val})=>{
     if(tick){ tick.style.left = pct+'%'; tick.style.display='block' }
     if(val) val.textContent = txt
@@ -510,26 +858,44 @@ function clearLegendTick(){
 // ── FIELDS ────────────────────────────────────────────────────────────────────
 function valField(){
   const p=S.party.id
-  if(S.election==='diff') return S.metric==='pct' ? `${p}_diff_pct` : `${p}_diff_voti`
+  if(S.election==='diff'){
+    if(S.metric==='pct')    return `${p}_diff_pct`
+    if(S.metric==='voti')   return `${p}_diff_voti`
+    if(S.metric==='relpct') return `${p}_diff_relpct`     // computed client-side
+  }
   return S.metric==='pct' ? `${p}_pct` : p
 }
 function lblField(){
   const p=S.party.id
-  if(S.election==='diff') return S.metric==='pct' ? `${p}_diff_pct_label` : `${p}_diff_voti_label`
+  if(S.election==='diff'){
+    if(S.metric==='pct')    return `${p}_diff_pct_label`
+    if(S.metric==='voti')   return `${p}_diff_voti_label`
+    if(S.metric==='relpct') return `${p}_diff_relpct_label` // computed client-side
+  }
   return S.metric==='pct' ? `${p}_label_pct` : `${p}_label_voti`
 }
 
 function parensCaption(){
-  if(S.election==='diff') return S.metric==='pct' ? '( ) = vote count change' : '( ) = % point change'
-  return S.metric==='pct' ? '( ) = absolute votes' : '( ) = % share'
+  if(S.election==='diff'){
+    if(S.metric==='pct')    return t('cap_diff_pct')
+    if(S.metric==='voti')   return t('cap_diff_voti')
+    if(S.metric==='relpct') return t('cap_diff_relpct')
+  }
+  return S.metric==='pct' ? t('cap_voti') : t('cap_pct')
 }
 
 // ── INFO ──────────────────────────────────────────────────────────────────────
 function infoHTML(props,locked){
+  if(S.view==='winner'){
+    const w = winnerOfFeature(props)
+    if(!w) return `<div class="isez">Sez. ${props.Sezione??'—'}${locked?'<span class="ldot"></span>':''}</div><div class="ip" style="text-align:left">${t('no_data')}</div>`
+    return `<div class="isez">Sez. ${props.Sezione??'—'}${locked?'<span class="ldot"></span>':''}</div><div class="ival" style="color:${w.color}">${w.label}</div><div class="isub">${t('winning')} · ${w.pct.toFixed(1)}%</div>`
+  }
   const v = props[lblField()] ?? props[valField()] ?? '—'
+  const electionLbl = S.election==='amm2024' ? t('el_amm') : t('el_reg')
   const lab = S.election==='diff'
     ? `∆ ${S.party.label.replace(' ∆','')} · 2025 vs 2024`
-    : `${S.party.label} · ${S.election==='amm2024'?'Comunali 2024':'Regionali 2025'}`
+    : `${S.party.label} · ${electionLbl}`
   return `<div class="isez">Sez. ${props.Sezione??'—'}${locked?'<span class="ldot"></span>':''}</div><div class="ival">${v}</div><div class="isub">${lab}</div><div class="iparens">${parensCaption()}</div>`
 }
 function setInfo(props,locked){
@@ -538,11 +904,11 @@ function setInfo(props,locked){
   const ms = document.getElementById('mSheetInfo'); if(ms) ms.innerHTML = html
 }
 function clearInfo(){
-  document.getElementById('infoBox').innerHTML = '<p class="ip">— hover or click —</p>'
-  const ms = document.getElementById('mSheetInfo'); if(ms) ms.innerHTML = '<p class="ip" style="text-align:left">—</p>'
+  document.getElementById('infoBox').innerHTML = `<p class="ip">${t('hint_hover')}</p>`
+  const ms = document.getElementById('mSheetInfo'); if(ms) ms.innerHTML = `<p class="ip" style="text-align:left">—</p>`
 }
 
-// ── BREAKDOWN: PIE (regular) or DIVERGING BARS (diff) ────────────────────────
+// ── BREAKDOWN ─────────────────────────────────────────────────────────────────
 const pieInstances = {}
 
 function drawBreakdown(props){
@@ -552,9 +918,9 @@ function drawBreakdown(props){
   ]
   if(S.election==='diff') drawDeltaBars(props, targets)
   else drawPie(props, targets)
-  document.getElementById('breakdownLbl').textContent = S.election==='diff' ? 'Sezione delta breakdown' : 'Sezione breakdown'
+  document.getElementById('breakdownLbl').textContent = S.election==='diff' ? t('bdown_diff') : t('bdown')
   const mLbl = document.getElementById('mSheetBreakdownLbl')
-  if(mLbl) mLbl.textContent = S.election==='diff' ? 'Delta breakdown (2025 - 2024)' : 'Breakdown'
+  if(mLbl) mLbl.textContent = S.election==='diff' ? t('bdown_short_diff') : t('bdown_short')
 }
 
 function drawPie(props, targets){
@@ -581,7 +947,10 @@ function drawPie(props, targets){
 function drawDeltaBars(props, targets){
   const items = []
   PARTIES.diff.forEach(p=>{
-    const col = S.metric==='pct' ? `${p.id}_diff_pct` : `${p.id}_diff_voti`
+    let col
+    if(S.metric==='pct')         col = `${p.id}_diff_pct`
+    else if(S.metric==='voti')   col = `${p.id}_diff_voti`
+    else                         col = `${p.id}_diff_relpct`
     const v = props[col]
     if(v!=null && !isNaN(v)) items.push({label:p.label.replace(' ∆',''), value:+v.toFixed(2)})
   })
@@ -589,7 +958,7 @@ function drawDeltaBars(props, targets){
   const labels = items.map(i=>i.label)
   const values = items.map(i=>i.value)
   const colors = items.map(i=>i.value>=0 ? '#bf3a3a' : '#3a7abf')
-  const u = S.metric==='pct' ? 'pp' : ' voti'
+  const u = S.metric==='pct' ? 'pp' : (S.metric==='relpct' ? '%' : ' voti')
   const cfg = {
     type:'bar',
     data:{labels, datasets:[{data:values, backgroundColor:colors, borderWidth:0, borderRadius:1}]},
@@ -600,7 +969,8 @@ function drawDeltaBars(props, targets){
         legend:{display:false},
         tooltip:{callbacks:{label:ctx=>{
           const v=ctx.parsed.x; const sign=v>0?'+':'';
-          return ` ${sign}${v.toFixed(2)}${u}`
+          const flag = (S.metric==='relpct' && Math.abs(v)>RELPCT_CAP) ? ' ⚠ outlier' : '';
+          return ` ${sign}${v.toFixed(2)}${u}${flag}`
         }}}
       },
       scales:{
@@ -638,11 +1008,40 @@ function clearBreakdown(){
   })
 }
 
-// ── BAR CHART (ranked) ────────────────────────────────────────────────────────
+// ── BAR CHART ─────────────────────────────────────────────────────────────────
 const barInstances = {}
 let barSorted = []
 
 function drawBar(gj){
+  if(S.view==='winner'){
+    // Hide bar in winner mode? No — keep it but show a placeholder dataset of count by party.
+    barSorted = []
+    Object.values(barInstances).forEach(c=>{ if(c){ c.destroy() } })
+    Object.keys(barInstances).forEach(k=>delete barInstances[k])
+    const items = Object.values(winnerSummary).sort((a,b)=>b.count-a.count)
+    const cfg = {
+      type:'bar',
+      data:{
+        labels:items.map(i=>i.party.label),
+        datasets:[{data:items.map(i=>i.count), backgroundColor:items.map(i=>i.party.color), borderWidth:0, borderRadius:1}]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, animation:{duration:200},
+        plugins:{legend:{display:false},
+          tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y} ${t('sez_won')}`}}},
+        scales:{
+          x:{ticks:{color:'#6b6760',font:{family:'DM Mono',size:9}},grid:{color:'#1c1c1c'},border:{color:'#252525'}},
+          y:{ticks:{color:'#6b6760',font:{family:'DM Mono',size:9},maxTicksLimit:5},grid:{color:'#1c1c1c'},border:{color:'#252525'}}
+        }
+      }
+    }
+    ;['barChart','mSheetBar'].forEach(cid=>{
+      const c=document.getElementById(cid); if(!c) return
+      barInstances[cid] = new Chart(c, JSON.parse(JSON.stringify(cfg)))
+    })
+    return
+  }
+
   const field = valField()
   barSorted = gj.features.filter(f=>f.properties[field]!=null && !isNaN(f.properties[field])).sort((a,b)=>b.properties[field]-a.properties[field])
   const buildBase = ()=>({
@@ -706,6 +1105,7 @@ function drawBar(gj){
 }
 
 function refreshBarColors(){
+  if(S.view==='winner') return
   Object.entries(barInstances).forEach(([cid,ch])=>{
     if(!ch) return
     ch.data.datasets[0].backgroundColor = barSorted.map((f,i)=> i===lockedBarIdx ? '#c8a96e' : getColor(f.properties[valField()]))
@@ -715,59 +1115,71 @@ function refreshBarColors(){
 
 function setLockedBarBySezione(sezione){
   if(sezione==null){ lockedBarIdx=null; refreshBarColors(); return }
+  if(S.view==='winner') return
   const idx = barSorted.findIndex(f=>f.properties.Sezione===sezione)
   lockedBarIdx = idx>=0 ? idx : null
   refreshBarColors()
 }
 
 // ── RENDER MAP ────────────────────────────────────────────────────────────────
+function styleFeature(props){
+  if(S.view==='winner'){
+    const w = winnerOfFeature(props)
+    return { fillColor: w?w.color:'#1c1c1c', fillOpacity: S.layerOn?.85:0, color:S.layerOn?'#0d0d0d':'#555', weight:.6 }
+  }
+  return { fillColor: getColor(props[valField()]), fillOpacity: S.layerOn?.82:0, color:S.layerOn?'#0d0d0d':'#555', weight:.6 }
+}
+
 function applyVis(){
   if(!geojsonLayer)return
   geojsonLayer.eachLayer(l=>{
-    const p=l.feature?.properties; const f=valField(); const lk=S.locked===p?.Sezione
-    if(S.layerOn) l.setStyle({fillColor:getColor(p?.[f]),fillOpacity:lk?1:.82,color:lk?'#c8a96e':'#0d0d0d',weight:lk?2.5:.6})
-    else l.setStyle({fillOpacity:0,color:'#555',weight:.8})
+    const p=l.feature?.properties; const lk=S.locked===p?.Sezione
+    const base = styleFeature(p)
+    if(lk){ base.color='#c8a96e'; base.weight=2.5; base.fillOpacity=Math.max(base.fillOpacity,1) }
+    if(!S.layerOn){ base.fillOpacity=0; base.color='#555'; base.weight=.8 }
+    l.setStyle(base)
   })
 }
 
 function renderMap(gj){
   if(geojsonLayer) map.removeLayer(geojsonLayer)
-  const field = valField()
-  currentRange = computeRange(gj,field)
+  if(S.view!=='winner'){
+    const field = valField()
+    currentRange = computeRange(gj,field)
+  } else {
+    computeWinnerSummary(gj)
+  }
   geojsonLayer = L.geoJSON(gj,{
-    style:f=>({fillColor:getColor(f.properties[field]),fillOpacity:S.layerOn?.82:0,color:S.layerOn?'#0d0d0d':'#555',weight:.6}),
+    style:f=>styleFeature(f.properties),
     onEachFeature:(feature,layer)=>{
       const props = feature.properties
       layer.on('mouseover', function(){
         if(S.locked!==props.Sezione && S.layerOn){ this.setStyle({weight:2,color:'#c8a96e',fillOpacity:.95}); this.bringToFront() }
-        // Item 16: legend tick follows hover always
-        updateLegendTick(props[valField()])
-        // Item 3: only update info text if nothing locked
+        if(S.view!=='winner') updateLegendTick(props[valField()])
         if(!S.locked) setInfo(props,false)
       })
       layer.on('mouseout', function(){
         if(S.locked!==props.Sezione) geojsonLayer.resetStyle(this)
-        // restore tick to locked value (or hide if none)
         if(S.locked){
           const lp = findPropsBySezione(S.locked)
-          if(lp) updateLegendTick(lp[valField()])
+          if(lp && S.view!=='winner') updateLegendTick(lp[valField()])
         } else {
-          updateLegendTick(null)
+          if(S.view!=='winner') updateLegendTick(null)
           clearInfo()
         }
       })
       layer.on('click', function(){
         geojsonLayer.eachLayer(l=>geojsonLayer.resetStyle(l))
         if(S.locked===props.Sezione){
-          // toggle off
           S.locked = null
           clearInfo(); clearBreakdown(); setLockedBarBySezione(null); updateLegendTick(null)
           closeMobileSheet(false)
         } else {
           S.locked = props.Sezione
           this.setStyle({weight:2.5,color:'#c8a96e',fillOpacity:1}); this.bringToFront()
-          setInfo(props,true); drawBreakdown(props); setLockedBarBySezione(props.Sezione); updateLegendTick(props[valField()])
-          if(isMobile()) openMobileSheet(props)
+          setInfo(props,true); drawBreakdown(props); setLockedBarBySezione(props.Sezione)
+          if(S.view!=='winner') updateLegendTick(props[valField()])
+          if(isMobile()) openMobileSheet(props, true)
         }
       })
     }
@@ -783,11 +1195,12 @@ function findPropsBySezione(sez){
 }
 
 // ── MOBILE BOTTOM SHEET ───────────────────────────────────────────────────────
-function openMobileSheet(props){
-  document.getElementById('mSheetTitle').textContent = `Sezione ${props.Sezione}`
+function openMobileSheet(props, withInfo=true){
+  document.getElementById('mSheetTitle').textContent = props ? `Sezione ${props.Sezione}` : 'All sezioni ranked'
+  document.getElementById('mSheetInfoSection').style.display = props ? '' : 'none'
+  document.getElementById('mSheetPieSection').style.display = props ? '' : 'none'
   document.getElementById('mSheet').classList.add('show')
   document.getElementById('mSheetBackdrop').classList.add('show')
-  // Resize charts after sheet opens
   setTimeout(()=>{ Object.values(pieInstances).forEach(c=>c.resize()); Object.values(barInstances).forEach(c=>c.resize()) }, 320)
 }
 
@@ -804,18 +1217,98 @@ function closeMobileSheet(deselect=true){
 document.getElementById('mSheetClose').addEventListener('click', ()=>closeMobileSheet(true))
 document.getElementById('mSheetBackdrop').addEventListener('click', ()=>closeMobileSheet(true))
 
+// Floating bar-chart button
+document.getElementById('mBarFab').addEventListener('click', ()=>{
+  openMobileSheet(null, false)
+})
+
 // ── DATA ──────────────────────────────────────────────────────────────────────
 async function loadData(el){
   if(S.data[el]) return S.data[el]
   try{ const r=await fetch(DATA_URLS[el]); if(!r.ok) throw new Error(`HTTP ${r.status}`); const j=await r.json(); S.data[el]=j; return j }
   catch(e){ alert(`Cannot load data: ${e.message}`); return null }
 }
+
+// Build a {sezione: {voti24, voti25}} lookup per party, then attach _diff_relpct fields to diff features.
+let _relpctEnriched = false
+async function ensureRelpctOnDiff(){
+  if(_relpctEnriched) return
+  const diff = S.data.diff; if(!diff) return
+  // Load both source elections in parallel (cached after first time)
+  const [g24, g25] = await Promise.all([loadData('amm2024'), loadData('reg2025')])
+  if(!g24 || !g25) return
+  const idx24 = {}, idx25 = {}
+  g24.features.forEach(f=>{ idx24[f.properties.Sezione] = f.properties })
+  g25.features.forEach(f=>{ idx25[f.properties.Sezione] = f.properties })
+  diff.features.forEach(f=>{
+    const sez = f.properties.Sezione
+    const p24 = idx24[sez], p25 = idx25[sez]
+    Object.entries(DIFF_PARTY_MAP).forEach(([shortId, m])=>{
+      const v24 = p24 ? +p24[m.vot24] : null
+      const v25 = p25 ? +p25[m.vot25] : null
+      let relpct = null
+      if(v24!=null && !isNaN(v24) && v24>0 && v25!=null && !isNaN(v25)){
+        relpct = (v25 - v24) / v24 * 100
+      } else if(v24===0 && v25>0){
+        relpct = Infinity // new vote where there were none — flag as outlier
+      }
+      if(relpct!=null && isFinite(relpct)){
+        f.properties[`${shortId}_diff_relpct`] = +relpct.toFixed(2)
+        const sign = relpct>0 ? '+' : ''
+        const outlier = Math.abs(relpct)>RELPCT_CAP ? ' ⚠' : ''
+        f.properties[`${shortId}_diff_relpct_label`] = `${sign}${relpct.toFixed(1)}% (${v24}→${v25})${outlier}`
+      } else if(relpct===Infinity){
+        f.properties[`${shortId}_diff_relpct`] = RELPCT_CAP // visualize as max
+        f.properties[`${shortId}_diff_relpct_label`] = `+∞% (0→${v25}) ⚠`
+      } else {
+        f.properties[`${shortId}_diff_relpct`] = null
+        f.properties[`${shortId}_diff_relpct_label`] = '—'
+      }
+    })
+  })
+  _relpctEnriched = true
+}
+
+// Show/hide + relabel the 3rd metric button depending on election
+function updateMetricButtonsForElection(){
+  const isDiff = S.election==='diff'
+  // Visibility of the relpct button
+  ;['metric_relpct','m_metric_relpct'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.style.display = isDiff ? '' : 'none'
+  })
+  // Relabel pct button: in diff context it means "pp"
+  const setLbl = (id, txt)=>{ const el=document.getElementById(id); if(el) el.textContent = txt }
+  if(isDiff){
+    setLbl('metric_pct', t('m_pct_diff')); setLbl('m_metric_pct', t('m_pct_diff'))
+    setLbl('metric_voti', t('m_voti_diff')); setLbl('m_metric_voti', t('m_voti_diff'))
+    setLbl('metric_relpct', t('m_relpct_diff')); setLbl('m_metric_relpct', t('m_relpct_diff'))
+  } else {
+    setLbl('metric_pct', t('m_pct')); setLbl('m_metric_pct', t('m_pct'))
+    setLbl('metric_voti', t('m_voti')); setLbl('m_metric_voti', t('m_voti'))
+    // If currently relpct selected and switching away, fall back to pct
+    if(S.metric==='relpct'){
+      S.metric = 'pct'
+      document.querySelectorAll('[data-metric]').forEach(b=>b.classList.toggle('active', b.dataset.metric==='pct'))
+      document.querySelectorAll('[data-mmetric]').forEach(b=>b.classList.toggle('active', b.dataset.mmetric==='pct'))
+    }
+  }
+  // Diff mapping info button visibility (both desktop and mobile)
+  const dmBtn = document.getElementById('diffMappingBtn')
+  if(dmBtn) dmBtn.style.display = isDiff ? '' : 'none'
+}
+
 async function update(){
   document.getElementById('loading').classList.remove('hidden')
   S.locked=null; clearInfo(); clearBreakdown(); setLockedBarBySezione(null); updateLegendTick(null); closeMobileSheet(false)
+  // Force "Party Choice" view when election=diff
+  if(S.election==='diff' && S.view==='winner'){ setView('party') }
   const gj = await loadData(S.election)
+  // If diff, ensure relpct is computed and attached
+  if(S.election==='diff'){ await ensureRelpctOnDiff() }
+  updateMetricButtonsForElection()
   document.getElementById('loading').classList.add('hidden')
   if(gj) renderMap(gj)
+  syncViewControls()
 }
 
 // ── PARTY SELECTS ─────────────────────────────────────────────────────────────
@@ -828,21 +1321,93 @@ function fillPartySelects(){
   S.party = PARTIES[S.election][0]
 }
 
-// ── SEARCH (address) ──────────────────────────────────────────────────────────
+// ── VIEW (party-choice vs winner-map) ─────────────────────────────────────────
+function setView(v){
+  S.view = v
+  document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active', b.dataset.view===v))
+  document.getElementById('m_viewSelect').value = v
+  const partyCG = document.getElementById('partyCG')
+  const metricCG = document.getElementById('metricCG')
+  const mPartyCG = document.getElementById('m_partyCG')
+  const mMetricRow = document.getElementById('m_metricRow')
+  const dim = (el, dim)=>{ if(el) el.style.opacity = dim?'.4':'1'; el.querySelectorAll('select,button').forEach(c=>c.disabled=dim) }
+  const winner = (v==='winner')
+  dim(partyCG, winner)
+  dim(metricCG, winner)
+  if(mPartyCG) dim(mPartyCG, winner)
+  if(mMetricRow){ mMetricRow.style.opacity = winner?.4:1; mMetricRow.querySelectorAll('button:not(.bm-btn)').forEach(b=>b.disabled=winner) }
+}
+function syncViewControls(){
+  document.getElementById('viewWinnerBtn').disabled = (S.election==='diff')
+  if(S.election==='diff' && S.view==='winner') setView('party')
+}
+
+// ── ADDRESS / SEZIONE SEARCH (smart) ─────────────────────────────────────────
 let stimer=null
 const sinput=document.getElementById('searchInput')
 const sresults=document.getElementById('searchResults')
+sinput.placeholder = 'Search address or sezione #'
+
+// Trigger highlight + lock + zoom on a specific sezione (used by search results too)
+function highlightSezione(sez){
+  if(!geojsonLayer) return
+  let target = null
+  geojsonLayer.eachLayer(l=>{ if(l.feature?.properties?.Sezione===sez) target = l })
+  if(!target) return
+  // Reset others
+  geojsonLayer.eachLayer(l=>geojsonLayer.resetStyle(l))
+  S.locked = sez
+  target.setStyle({weight:2.5, color:'#c8a96e', fillOpacity:1})
+  target.bringToFront()
+  const props = target.feature.properties
+  setInfo(props, true); drawBreakdown(props); setLockedBarBySezione(sez)
+  if(S.view!=='winner') updateLegendTick(props[valField()])
+  map.fitBounds(target.getBounds(), {padding:[60,60], maxZoom:17})
+  if(isMobile()) openMobileSheet(props, true)
+}
+
 async function doSearch(q){
-  if(!q.trim()){ sresults.style.display='none'; return }
+  const query = q.trim()
+  if(!query){ sresults.style.display='none'; return }
+  // Sezione search if input is numeric (or numeric prefix)
+  const numMatch = query.match(/^(\d+)$/)
+  if(numMatch && geojsonLayer){
+    const needle = numMatch[1]
+    const matches = []
+    geojsonLayer.eachLayer(l=>{
+      const sez = String(l.feature?.properties?.Sezione ?? '')
+      if(sez.startsWith(needle)) matches.push(sez)
+    })
+    matches.sort((a,b)=>+a-+b)
+    sresults.innerHTML = ''
+    if(!matches.length){
+      sresults.innerHTML = `<div class="sri" style="cursor:default;color:#444">${t('no_sez')}</div>`
+    } else {
+      matches.slice(0, 12).forEach(sez=>{
+        const div = document.createElement('div')
+        div.className = 'sri'
+        div.innerHTML = `<span style="color:var(--accent)">Sez. ${sez}</span>`
+        div.onclick = ()=>{
+          sresults.style.display='none'
+          sinput.value = `Sez. ${sez}`
+          highlightSezione(isNaN(+sez) ? sez : +sez)
+        }
+        sresults.appendChild(div)
+      })
+    }
+    sresults.style.display = 'block'
+    return
+  }
+  // Otherwise, address geocoding via Nominatim
   try{
-    const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q+', Firenze, Italia')}&limit=5`,{headers:{'Accept-Language':'it,en'}})
+    const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query+', Firenze, Italia')}&limit=5`,{headers:{'Accept-Language':'it,en'}})
     const d=await r.json(); sresults.innerHTML=''
-    if(!d.length) sresults.innerHTML='<div class="sri" style="cursor:default;color:#444">No results</div>'
+    if(!d.length) sresults.innerHTML=`<div class="sri" style="cursor:default;color:#444">${t('no_results')}</div>`
     else d.forEach(item=>{ const div=document.createElement('div'); div.className='sri'; div.textContent=item.display_name; div.onclick=()=>{ map.setView([+item.lat,+item.lon],17); sresults.style.display='none'; sinput.value=item.display_name.split(',')[0] }; sresults.appendChild(div) })
     sresults.style.display='block'
   }catch(e){ console.error(e) }
 }
-sinput.addEventListener('input',()=>{ clearTimeout(stimer); stimer=setTimeout(()=>doSearch(sinput.value),450) })
+sinput.addEventListener('input',()=>{ clearTimeout(stimer); stimer=setTimeout(()=>doSearch(sinput.value),350) })
 document.getElementById('searchBtn').addEventListener('click',()=>doSearch(sinput.value))
 sinput.addEventListener('keydown',e=>{ if(e.key==='Enter') doSearch(sinput.value) })
 document.addEventListener('click',e=>{ if(!e.target.closest('.search-wrap')) sresults.style.display='none' })
@@ -850,7 +1415,7 @@ document.addEventListener('click',e=>{ if(!e.target.closest('.search-wrap')) sre
 // ── BASEMAP ───────────────────────────────────────────────────────────────────
 document.querySelectorAll('[data-bm]').forEach(btn=>{
   btn.addEventListener('click',()=>{
-    document.querySelectorAll('[data-bm]').forEach(b=>b.classList.remove('active')); btn.classList.add('active')
+    document.querySelectorAll('[data-bm]').forEach(b=>b.classList.toggle('active', b.dataset.bm===btn.dataset.bm))
     Object.values(basemaps).forEach(l=>map.removeLayer(l)); basemaps[btn.dataset.bm].addTo(map)
     if(geojsonLayer) geojsonLayer.bringToFront()
   })
@@ -858,7 +1423,7 @@ document.querySelectorAll('[data-bm]').forEach(btn=>{
 
 // ── LAYER TOGGLE ──────────────────────────────────────────────────────────────
 document.getElementById('layerToggle').addEventListener('click', function(){
-  S.layerOn=!S.layerOn; this.textContent=S.layerOn?'● ON':'○ OFF'; this.classList.toggle('on',S.layerOn); applyVis()
+  S.layerOn=!S.layerOn; this.textContent = S.layerOn ? t('on') : t('off'); this.classList.toggle('on',S.layerOn); applyVis()
 })
 
 // ── DESKTOP RESIZE ────────────────────────────────────────────────────────────
@@ -890,12 +1455,15 @@ function syncControls(){
   document.getElementById('m_electionSelect').value = S.election
 }
 
-document.getElementById('electionSelect').addEventListener('change',e=>{
-  S.election=e.target.value; syncControls(); fillPartySelects(); update()
-})
-document.getElementById('m_electionSelect').addEventListener('change',e=>{
-  S.election=e.target.value; syncControls(); fillPartySelects(); update()
-})
+function onElectionChange(val){
+  S.election=val; syncControls(); fillPartySelects()
+  // Set default view for the election
+  setView(defaultViewFor(val))
+  update()
+}
+document.getElementById('electionSelect').addEventListener('change',e=>onElectionChange(e.target.value))
+document.getElementById('m_electionSelect').addEventListener('change',e=>onElectionChange(e.target.value))
+
 document.getElementById('partySelect').addEventListener('change',e=>{
   S.party = PARTIES[S.election][+e.target.value]
   document.getElementById('m_partySelect').value=e.target.value
@@ -908,8 +1476,24 @@ document.getElementById('m_partySelect').addEventListener('change',e=>{
   S.locked=null; clearInfo(); clearBreakdown(); setLockedBarBySezione(null); updateLegendTick(null); closeMobileSheet(false)
   if(S.data[S.election]) renderMap(S.data[S.election])
 })
+
+document.querySelectorAll('[data-view]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    if(btn.disabled) return
+    setView(btn.dataset.view)
+    S.locked=null; clearInfo(); clearBreakdown(); setLockedBarBySezione(null); closeMobileSheet(false)
+    if(S.data[S.election]) renderMap(S.data[S.election])
+  })
+})
+document.getElementById('m_viewSelect').addEventListener('change', e=>{
+  setView(e.target.value)
+  S.locked=null; clearInfo(); clearBreakdown(); setLockedBarBySezione(null); closeMobileSheet(false)
+  if(S.data[S.election]) renderMap(S.data[S.election])
+})
+
 document.querySelectorAll('[data-metric]').forEach(btn=>{
   btn.addEventListener('click',()=>{
+    if(btn.disabled) return
     document.querySelectorAll('[data-metric]').forEach(b=>b.classList.remove('active')); btn.classList.add('active')
     S.metric=btn.dataset.metric
     document.querySelectorAll('[data-mmetric]').forEach(b=>b.classList.toggle('active',b.dataset.mmetric===S.metric))
@@ -919,6 +1503,7 @@ document.querySelectorAll('[data-metric]').forEach(btn=>{
 })
 document.querySelectorAll('[data-mmetric]').forEach(btn=>{
   btn.addEventListener('click',()=>{
+    if(btn.disabled) return
     document.querySelectorAll('[data-mmetric]').forEach(b=>b.classList.remove('active')); btn.classList.add('active')
     S.metric=btn.dataset.mmetric
     document.querySelectorAll('[data-metric]').forEach(b=>b.classList.toggle('active',b.dataset.metric===S.metric))
@@ -927,12 +1512,59 @@ document.querySelectorAll('[data-mmetric]').forEach(btn=>{
   })
 })
 
+// ── NOTICE MODAL ──────────────────────────────────────────────────────────────
+const NOTICE_KEY = 'efi_notice_seen_v1'
+const noticeBackdrop = document.getElementById('noticeBackdrop')
+function showNotice(){ noticeBackdrop.classList.add('show') }
+function hideNotice(){ noticeBackdrop.classList.remove('show'); try{ localStorage.setItem(NOTICE_KEY,'1') }catch(e){} }
+document.getElementById('noticeCloseBtn').addEventListener('click', hideNotice)
+noticeBackdrop.addEventListener('click', e=>{ if(e.target===noticeBackdrop) hideNotice() })
+document.getElementById('infoOpenBtn').addEventListener('click', showNotice)
+try{ if(!localStorage.getItem(NOTICE_KEY)) showNotice() }catch(e){ showNotice() }
+
+// ── PARTY MAPPING MODAL ──────────────────────────────────────────────────────
+const mappingBackdrop = document.getElementById('mappingBackdrop')
+function fillMappingTable(){
+  const tbody = document.getElementById('mappingTbody')
+  tbody.innerHTML = Object.entries(DIFF_PARTY_MAP).map(([shortId, m])=>{
+    const party = PARTIES.diff.find(p=>p.id===shortId)
+    const sw = party ? `<span style="display:inline-block;width:8px;height:8px;background:${party.color};margin-right:.4rem;vertical-align:middle"></span>` : ''
+    return `<tr style="border-bottom:1px solid var(--border)"><td style="padding:.45rem .3rem;color:var(--text)">${sw}${shortId}</td><td style="padding:.45rem .3rem;color:var(--muted)">${m.lbl24}</td><td style="padding:.45rem .3rem;color:var(--muted)">${m.lbl25}</td></tr>`
+  }).join('')
+  const note = document.getElementById('mapNoteBlock')
+  if(note){
+    if(LANG==='it'){
+      note.innerHTML = `<strong>${t('map_note')}</strong><br>
+        • <strong>pp</strong> (punti percentuali) — variazione della % di voto, es. 30% → 15% = <code>−15 pp</code><br>
+        • <strong>voti</strong> — variazione del numero di voti, es. 100 → 50 = <code>−50 voti</code><br>
+        • <strong>Variazione %</strong> — variazione relativa dei voti, es. 100 → 50 = <code>−50%</code>. <em>Sulla mappa è limitato a ±200% per leggibilità; i valori estremi sono segnalati nei tooltip.</em>`
+    } else {
+      note.innerHTML = `<strong>${t('map_note')}</strong><br>
+        • <strong>pp</strong> (percentage points) — change in vote share, e.g. 30% → 15% = <code>−15 pp</code><br>
+        • <strong>voti</strong> — change in absolute vote count, e.g. 100 → 50 = <code>−50 voti</code><br>
+        • <strong>% Change</strong> — relative change in absolute votes, e.g. 100 → 50 = <code>−50%</code>. <em>Capped at ±200% on the map for readability; outliers are flagged in tooltips.</em>`
+    }
+  }
+}
+function showMapping(){ fillMappingTable(); mappingBackdrop.style.display='flex' }
+function hideMapping(){ mappingBackdrop.style.display='none' }
+document.getElementById('mappingCloseBtn').addEventListener('click', hideMapping)
+mappingBackdrop.addEventListener('click', e=>{ if(e.target===mappingBackdrop) hideMapping() })
+document.getElementById('diffMappingBtn').addEventListener('click', showMapping)
+
 // ── RESIZE ────────────────────────────────────────────────────────────────────
 window.addEventListener('resize',()=>{ applyLayout() })
+
+// ── LANG BUTTONS ──────────────────────────────────────────────────────────────
+document.querySelectorAll('.lang-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>setLang(btn.dataset.lang))
+})
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 applyLayout()
 fillPartySelects()
+setView(defaultViewFor(S.election))
+applyI18n()
 update()
 </script>
 </body>
